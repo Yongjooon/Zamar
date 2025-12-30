@@ -22,46 +22,16 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState('');
 
-  // ✅ 접속 즉시 "다가오는 일요일" 기준 주로 맞춤
   const [weekIndex, setWeekIndex] = useState(() => findCurrentWeekIndex(weeks));
 
-  // ✅ iOS overscroll(당겨서 튕길 때) 배경 흰색 노출 방지 + 스크롤은 유지
-  useEffect(() => {
-    const html = document.documentElement;
-    const body = document.body;
-
-    const prevHtmlBg = html.style.backgroundColor;
-    const prevBodyBg = body.style.backgroundColor;
-    const prevHtmlOver = html.style.overscrollBehaviorY;
-    const prevBodyOver = body.style.overscrollBehaviorY;
-
-    // "흰색"이 비치는 건 보통 html/body 배경이 투명/기본색이라서임
-    html.style.backgroundColor = '#0b0d12';
-    body.style.backgroundColor = '#0b0d12';
-
-    // 지원 브라우저에서 rubber-band 시 배경 노출을 줄임
-    html.style.overscrollBehaviorY = 'none';
-    body.style.overscrollBehaviorY = 'none';
-
-    return () => {
-      html.style.backgroundColor = prevHtmlBg;
-      body.style.backgroundColor = prevBodyBg;
-      html.style.overscrollBehaviorY = prevHtmlOver;
-      body.style.overscrollBehaviorY = prevBodyOver;
-    };
-  }, []);
-
-  // ✅ 주가 바뀌는 걸 자동 반영 (월요일이 되면 upcoming Sunday가 바뀜)
   useEffect(() => {
     const id = setInterval(() => {
       const next = findCurrentWeekIndex(weeks);
       setWeekIndex((prev) => (prev === next ? prev : next));
     }, 60 * 1000);
-
     return () => clearInterval(id);
   }, [weeks]);
 
-  // ✅ 렌더 단계에서 안전한 index로 clamp (weeks 길이 변동 대비)
   const safeWeekIndex = useMemo(() => {
     const max = Math.max(weeks.length - 1, 0);
     return Math.min(Math.max(weekIndex, 0), max);
@@ -102,11 +72,8 @@ export default function App() {
         onOpenMenu={() => setDrawerOpen(true)}
       />
 
-      {/* ✅ iPhone 하단 UI 때문에 마지막 줄이 살짝 가려지는 케이스 방지 */}
-      <main
-        className="content"
-        style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom))' }}
-      >
+      {/* ✅ content는 페이지 스크롤이 가능해야 함 (기존 css 유지) */}
+      <main className="content" style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom))' }}>
         {route === 'positions' && (
           <PositionsPage
             week={week}
@@ -127,12 +94,7 @@ export default function App() {
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <div className="drawerHead">
           <div className="drawerTitle">Menu</div>
-          <button
-            className="iconBtn"
-            onClick={() => setDrawerOpen(false)}
-            aria-label="Close menu"
-            type="button"
-          >
+          <button className="iconBtn" onClick={() => setDrawerOpen(false)} aria-label="Close menu" type="button">
             <span className="x">×</span>
           </button>
         </div>

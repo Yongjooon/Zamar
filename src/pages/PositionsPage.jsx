@@ -25,12 +25,10 @@ export default function PositionsPage({
     animLock.current = true;
     setAnimDir(dir);
 
-    // halfway → change data
     setTimeout(() => {
       action();
     }, 160);
 
-    // end animation
     setTimeout(() => {
       setAnimDir(null);
       animLock.current = false;
@@ -83,15 +81,22 @@ export default function PositionsPage({
     }
   }
 
-  /* =========================================================
-     ✅ animation style (CSS 추가 없음)
-  ========================================================= */
   const slideStyle =
     animDir === 'next'
       ? { transform: 'translateX(-20px)', opacity: 0 }
       : animDir === 'prev'
       ? { transform: 'translateX(20px)', opacity: 0 }
       : { transform: 'translateX(0)', opacity: 1 };
+
+  /* =========================================================
+     ✅ IMPORTANT:
+     - 카드 자체는 화면 안에서 고정 높이(최대)로 잡고
+     - list 영역만 내부 스크롤되게 해서
+     - "아래가 잘려서 안 보이는" 문제 해결
+  ========================================================= */
+  const cardMaxH = 'calc(100dvh - 140px - env(safe-area-inset-bottom))';
+  // 140px은 topbar + content padding 등 대략치 (너 앱 기준)
+  // 너무 타이트하면 120~170 사이로 조정하면 됨.
 
   return (
     <section
@@ -100,19 +105,20 @@ export default function PositionsPage({
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       style={{
-        touchAction: 'pan-y', // ✅ 세로 스크롤은 그대로 동작
+        touchAction: 'pan-y',
         transition: 'transform 320ms ease, opacity 260ms ease',
         ...slideStyle,
+
+        // ✅ 카드가 화면 안에서 "길이 확보"
+        maxHeight: cardMaxH,
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      {/* ================= Header ================= */}
-      <div className="cardHead">
+      {/* ================= Header (고정) ================= */}
+      <div className="cardHead" style={{ flex: '0 0 auto' }}>
         <div>
-          <button
-            type="button"
-            className="weekLabel weekLabelBtn"
-            onClick={() => setPickerOpen(true)}
-          >
+          <button type="button" className="weekLabel weekLabelBtn" onClick={() => setPickerOpen(true)}>
             {week ? formatSundayLabel(week.sunday) : '-'}
             <span className="weekLabelChevron">
               <Icon name="chevRight" />
@@ -141,13 +147,20 @@ export default function PositionsPage({
         </div>
       </div>
 
-      {/* ================= Positions ================= */}
-      <div className="list">
+      {/* ================= List (여기만 스크롤) ================= */}
+      <div
+        className="list"
+        style={{
+          flex: '1 1 auto',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain', // ✅ iOS 바운스 흰색 전파 방지
+          paddingBottom: 'calc(14px + env(safe-area-inset-bottom))',
+        }}
+      >
         {positions.map((p) => {
           const people =
-            Array.isArray(p.people) && p.people.length > 0
-              ? p.people.join(' · ')
-              : p.person ?? '-';
+            Array.isArray(p.people) && p.people.length > 0 ? p.people.join(' · ') : p.person ?? '-';
 
           return (
             <div key={p.role} className="row">
@@ -163,10 +176,7 @@ export default function PositionsPage({
       </div>
 
       {/* ================= Week Picker ================= */}
-      <div
-        className={`pickerBackdrop ${pickerOpen ? 'open' : ''}`}
-        onClick={() => setPickerOpen(false)}
-      />
+      <div className={`pickerBackdrop ${pickerOpen ? 'open' : ''}`} onClick={() => setPickerOpen(false)} />
       <div className={`pickerSheet ${pickerOpen ? 'open' : ''}`}>
         <div className="pickerHead">
           <div>
