@@ -1,0 +1,30 @@
+{
+  "teamName": "zamar",
+  "timezone": "Asia/Seoul",
+  "weeks": [
+    {
+      "sunday": "2025-12-28",
+      "positions": [
+        { "role": "인도자", "person": "김용준" },
+        { "role": "건반", "person": "Sora" },
+        { "role": "신디", "person": "Jihun" },
+        { "role": "드럼", "person": "Yuna" },
+        { "role": "일렉", "person": "Minjun" },
+        { "role": "베이스", "person": "Sora" },
+        { "role": "엔지니어", "person": "Jihun" },
+        { "role": "ppt", "person": "Yuna" }
+      ],
+      "setlist": ["(coming soon)"]
+    },
+    {
+      "sunday": "2026-01-04",
+      "positions": [
+        { "role": "Worship Leader", "person": "Hana" },
+        { "role": "Piano", "person": "Jun" },
+        { "role": "Guitar", "person": "Taewoo" },
+        { "role": "Drums", "person": "Arin" }
+      ],
+      "setlist": ["(coming soon)"]
+    }
+  ]
+}
