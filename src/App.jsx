@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
@@ -26,29 +25,33 @@ export default function App() {
   // ✅ 접속 즉시 "다가오는 일요일" 기준 주로 맞춤
   const [weekIndex, setWeekIndex] = useState(() => findCurrentWeekIndex(weeks));
 
-  /* =========================================================
-     ✅ iOS 하단 흰색(overscroll 배경) 방지 + 스크롤은 유지
-     - overflow:hidden 금지 (스크롤이 잘려서 아래가 안 보임)
-     - html/body 배경색을 어둡게 고정해서 바운스 시 흰색 방지
-  ========================================================= */
+  // ✅ iOS overscroll(당겨서 튕길 때) 배경 흰색 노출 방지 + 스크롤은 유지
   useEffect(() => {
-    const prevHtmlBg = document.documentElement.style.backgroundColor;
-    const prevBodyBg = document.body.style.backgroundColor;
-    const prevOverscroll = document.body.style.overscrollBehavior;
+    const html = document.documentElement;
+    const body = document.body;
 
-    document.documentElement.style.backgroundColor = '#0b0d12';
-    document.body.style.backgroundColor = '#0b0d12';
-    document.body.style.overscrollBehavior = 'none';
+    const prevHtmlBg = html.style.backgroundColor;
+    const prevBodyBg = body.style.backgroundColor;
+    const prevHtmlOver = html.style.overscrollBehaviorY;
+    const prevBodyOver = body.style.overscrollBehaviorY;
+
+    // "흰색"이 비치는 건 보통 html/body 배경이 투명/기본색이라서임
+    html.style.backgroundColor = '#0b0d12';
+    body.style.backgroundColor = '#0b0d12';
+
+    // 지원 브라우저에서 rubber-band 시 배경 노출을 줄임
+    html.style.overscrollBehaviorY = 'none';
+    body.style.overscrollBehaviorY = 'none';
 
     return () => {
-      document.documentElement.style.backgroundColor = prevHtmlBg;
-      document.body.style.backgroundColor = prevBodyBg;
-      document.body.style.overscrollBehavior = prevOverscroll;
+      html.style.backgroundColor = prevHtmlBg;
+      body.style.backgroundColor = prevBodyBg;
+      html.style.overscrollBehaviorY = prevHtmlOver;
+      body.style.overscrollBehaviorY = prevBodyOver;
     };
   }, []);
 
   // ✅ 주가 바뀌는 걸 자동 반영 (월요일이 되면 upcoming Sunday가 바뀜)
-  // - 1분마다 재계산: 값이 바뀔 때만 state 변경
   useEffect(() => {
     const id = setInterval(() => {
       const next = findCurrentWeekIndex(weeks);
@@ -99,7 +102,11 @@ export default function App() {
         onOpenMenu={() => setDrawerOpen(true)}
       />
 
-      <main className="content">
+      {/* ✅ iPhone 하단 UI 때문에 마지막 줄이 살짝 가려지는 케이스 방지 */}
+      <main
+        className="content"
+        style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom))' }}
+      >
         {route === 'positions' && (
           <PositionsPage
             week={week}
