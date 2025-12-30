@@ -3,6 +3,12 @@
 html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);background:radial-gradient(1200px 800px at 10% 10%,rgba(120,140,255,.18),transparent 50%),radial-gradient(900px 700px at 85% 15%,rgba(120,255,205,.12),transparent 45%),var(--bg)}
 .app{min-height:100vh;display:flex;flex-direction:column}
 
+/* ✅ Fix: scroll down 했을 때 하단이 밝게/하얗게 보이는 현상 제거 */
+html, body {
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
 /* ✅ safety: 다른 파일(index.css 등)에서 body/#root를 flex로 잡아도 App 화면이 치우치지 않게 */
 body{display:block}
 #root{
