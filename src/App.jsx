@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
 import Topbar from './components/Topbar.jsx';
@@ -22,11 +22,21 @@ export default function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState('');
 
-  // 초기 weekIndex는 data 로드 시 한번 계산
+  // ✅ 접속 즉시 "다가오는 일요일" 기준 주로 맞춤
   const [weekIndex, setWeekIndex] = useState(() => findCurrentWeekIndex(weeks));
 
-  // ✅ effect로 weekIndex를 “맞추는” 대신, 렌더 단계에서 안전한 index를 계산해서 사용
-  // (weeks 길이가 변해도 setState를 강제로 호출하지 않음)
+  // ✅ 주가 바뀌는 걸 자동 반영 (월요일이 되면 upcoming Sunday가 바뀜)
+  // - 1분마다 재계산: 값이 바뀔 때만 state 변경
+  useEffect(() => {
+    const id = setInterval(() => {
+      const next = findCurrentWeekIndex(weeks);
+      setWeekIndex((prev) => (prev === next ? prev : next));
+    }, 60 * 1000);
+
+    return () => clearInterval(id);
+  }, [weeks]);
+
+  // ✅ 렌더 단계에서 안전한 index로 clamp (weeks 길이 변동 대비)
   const safeWeekIndex = useMemo(() => {
     const max = Math.max(weeks.length - 1, 0);
     return Math.min(Math.max(weekIndex, 0), max);
@@ -88,7 +98,12 @@ export default function App() {
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <div className="drawerHead">
           <div className="drawerTitle">Menu</div>
-          <button className="iconBtn" onClick={() => setDrawerOpen(false)} aria-label="Close menu" type="button">
+          <button
+            className="iconBtn"
+            onClick={() => setDrawerOpen(false)}
+            aria-label="Close menu"
+            type="button"
+          >
             <span className="x">×</span>
           </button>
         </div>
