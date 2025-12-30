@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
@@ -26,19 +27,22 @@ export default function App() {
   const [weekIndex, setWeekIndex] = useState(() => findCurrentWeekIndex(weeks));
 
   /* =========================================================
-     ✅ iOS white bottom(overscroll) 방지 + 스크롤은 .content에 위임
-     - body는 스크롤 금지
-     - App.css에서 .content에 overflow-y: auto를 주면 스크롤 가능
+     ✅ iOS 하단 흰색(overscroll 배경) 방지 + 스크롤은 유지
+     - overflow:hidden 금지 (스크롤이 잘려서 아래가 안 보임)
+     - html/body 배경색을 어둡게 고정해서 바운스 시 흰색 방지
   ========================================================= */
   useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
+    const prevHtmlBg = document.documentElement.style.backgroundColor;
+    const prevBodyBg = document.body.style.backgroundColor;
     const prevOverscroll = document.body.style.overscrollBehavior;
 
-    document.body.style.overflow = 'hidden';
+    document.documentElement.style.backgroundColor = '#0b0d12';
+    document.body.style.backgroundColor = '#0b0d12';
     document.body.style.overscrollBehavior = 'none';
 
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.documentElement.style.backgroundColor = prevHtmlBg;
+      document.body.style.backgroundColor = prevBodyBg;
       document.body.style.overscrollBehavior = prevOverscroll;
     };
   }, []);

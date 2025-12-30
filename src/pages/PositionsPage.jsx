@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
+// src/pages/PositionsPage.jsx
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import { formatSundayLabel } from '../lib/date.js';
 
@@ -13,6 +14,11 @@ export default function PositionsPage({
 }) {
   const positions = useMemo(() => (week ? [...week.positions] : []), [week]);
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  /* =========================================================
+     ✅ (중요) 스크롤을 죽이는 overflow:hidden은 사용하지 않음
+     - 흰색(바운스 배경) 방지는 App.jsx에서 html/body 배경 고정으로 처리
+  ========================================================= */
 
   /* =========================================================
      ✅ Page transition (book-like slide)
@@ -59,6 +65,7 @@ export default function PositionsPage({
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
 
+    // 수평 이동이 더 크면 스와이프로 인식
     if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
       swiping.current = true;
     }
@@ -84,15 +91,14 @@ export default function PositionsPage({
   }
 
   /* =========================================================
-     ✅ animation style (CSS 추가 없음)
-     - translate + scale + opacity 조합으로 page-turn 느낌 강화
+     ✅ animation style (CSS 파일 수정 없이 inline만)
   ========================================================= */
   const slideStyle =
     animDir === 'next'
-      ? { transform: 'translateX(-26px) scale(0.985)', opacity: 0 }
+      ? { transform: 'translateX(-20px)', opacity: 0 }
       : animDir === 'prev'
-      ? { transform: 'translateX(26px) scale(0.985)', opacity: 0 }
-      : { transform: 'translateX(0) scale(1)', opacity: 1 };
+      ? { transform: 'translateX(20px)', opacity: 0 }
+      : { transform: 'translateX(0)', opacity: 1 };
 
   return (
     <section
@@ -102,8 +108,7 @@ export default function PositionsPage({
       onTouchEnd={onTouchEnd}
       style={{
         touchAction: 'pan-y',
-        transition: 'transform 320ms ease, opacity 240ms ease',
-        willChange: 'transform, opacity',
+        transition: 'transform 320ms ease, opacity 260ms ease',
         ...slideStyle,
       }}
     >
@@ -114,6 +119,7 @@ export default function PositionsPage({
             type="button"
             className="weekLabel weekLabelBtn"
             onClick={() => setPickerOpen(true)}
+            aria-label="Select a Sunday"
           >
             {week ? formatSundayLabel(week.sunday) : '-'}
             <span className="weekLabelChevron" aria-hidden>
@@ -171,17 +177,18 @@ export default function PositionsPage({
         className={`pickerBackdrop ${pickerOpen ? 'open' : ''}`}
         onClick={() => setPickerOpen(false)}
       />
-      <div
-        className={`pickerSheet ${pickerOpen ? 'open' : ''}`}
-        role="dialog"
-        aria-hidden={!pickerOpen}
-      >
+      <div className={`pickerSheet ${pickerOpen ? 'open' : ''}`} role="dialog" aria-hidden={!pickerOpen}>
         <div className="pickerHead">
           <div>
             <div className="pickerTitle">Select Sunday</div>
             <div className="pickerSub">Choose a week to view positions.</div>
           </div>
-          <button className="iconBtn" onClick={() => setPickerOpen(false)} type="button" aria-label="Close">
+          <button
+            className="iconBtn"
+            onClick={() => setPickerOpen(false)}
+            aria-label="Close week picker"
+            type="button"
+          >
             <span className="x">×</span>
           </button>
         </div>
