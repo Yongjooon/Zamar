@@ -25,6 +25,24 @@ export default function App() {
   // ✅ 접속 즉시 "다가오는 일요일" 기준 주로 맞춤
   const [weekIndex, setWeekIndex] = useState(() => findCurrentWeekIndex(weeks));
 
+  /* =========================================================
+     ✅ iOS white bottom(overscroll) 방지 + 스크롤은 .content에 위임
+     - body는 스크롤 금지
+     - App.css에서 .content에 overflow-y: auto를 주면 스크롤 가능
+  ========================================================= */
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overscrollBehavior = prevOverscroll;
+    };
+  }, []);
+
   // ✅ 주가 바뀌는 걸 자동 반영 (월요일이 되면 upcoming Sunday가 바뀜)
   // - 1분마다 재계산: 값이 바뀔 때만 state 변경
   useEffect(() => {

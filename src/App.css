@@ -185,3 +185,15 @@ body{display:block}
   .card{width:100%}
 }
 
+/* ✅ iOS white bottom 방지 + 스크롤은 content에 위임 */
+.app{
+  height: 100dvh;
+  min-height: 100dvh;
+}
+
+.content{
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}

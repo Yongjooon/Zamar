@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import { formatSundayLabel } from '../lib/date.js';
 
@@ -13,22 +13,6 @@ export default function PositionsPage({
 }) {
   const positions = useMemo(() => (week ? [...week.positions] : []), [week]);
   const [pickerOpen, setPickerOpen] = useState(false);
-
-  /* =========================================================
-     ✅ Mobile overscroll / white bottom fix
-  ========================================================= */
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevOverscroll = document.body.style.overscrollBehavior;
-
-    document.body.style.overflow = 'hidden';
-    document.body.style.overscrollBehavior = 'none';
-
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.overscrollBehavior = prevOverscroll;
-    };
-  }, []);
 
   /* =========================================================
      ✅ Page transition (book-like slide)
@@ -101,13 +85,14 @@ export default function PositionsPage({
 
   /* =========================================================
      ✅ animation style (CSS 추가 없음)
+     - translate + scale + opacity 조합으로 page-turn 느낌 강화
   ========================================================= */
   const slideStyle =
     animDir === 'next'
-      ? { transform: 'translateX(-20px)', opacity: 0 }
+      ? { transform: 'translateX(-26px) scale(0.985)', opacity: 0 }
       : animDir === 'prev'
-      ? { transform: 'translateX(20px)', opacity: 0 }
-      : { transform: 'translateX(0)', opacity: 1 };
+      ? { transform: 'translateX(26px) scale(0.985)', opacity: 0 }
+      : { transform: 'translateX(0) scale(1)', opacity: 1 };
 
   return (
     <section
@@ -117,7 +102,8 @@ export default function PositionsPage({
       onTouchEnd={onTouchEnd}
       style={{
         touchAction: 'pan-y',
-        transition: 'transform 320ms ease, opacity 260ms ease',
+        transition: 'transform 320ms ease, opacity 240ms ease',
+        willChange: 'transform, opacity',
         ...slideStyle,
       }}
     >
@@ -130,7 +116,7 @@ export default function PositionsPage({
             onClick={() => setPickerOpen(true)}
           >
             {week ? formatSundayLabel(week.sunday) : '-'}
-            <span className="weekLabelChevron">
+            <span className="weekLabelChevron" aria-hidden>
               <Icon name="chevRight" />
             </span>
           </button>
@@ -143,6 +129,7 @@ export default function PositionsPage({
             disabled={weekIndex === 0}
             onClick={() => animate('prev', onPrevWeek)}
             type="button"
+            aria-label="Previous week"
           >
             <Icon name="chevLeft" />
           </button>
@@ -151,6 +138,7 @@ export default function PositionsPage({
             disabled={weekIndex === weeksCount - 1}
             onClick={() => animate('next', onNextWeek)}
             type="button"
+            aria-label="Next week"
           >
             <Icon name="chevRight" />
           </button>
@@ -158,7 +146,7 @@ export default function PositionsPage({
       </div>
 
       {/* ================= Positions ================= */}
-      <div className="list">
+      <div className="list" aria-label="Positions list">
         {positions.map((p) => {
           const people =
             Array.isArray(p.people) && p.people.length > 0
@@ -183,33 +171,34 @@ export default function PositionsPage({
         className={`pickerBackdrop ${pickerOpen ? 'open' : ''}`}
         onClick={() => setPickerOpen(false)}
       />
-      <div className={`pickerSheet ${pickerOpen ? 'open' : ''}`}>
+      <div
+        className={`pickerSheet ${pickerOpen ? 'open' : ''}`}
+        role="dialog"
+        aria-hidden={!pickerOpen}
+      >
         <div className="pickerHead">
           <div>
             <div className="pickerTitle">Select Sunday</div>
             <div className="pickerSub">Choose a week to view positions.</div>
           </div>
-          <button className="iconBtn" onClick={() => setPickerOpen(false)}>
+          <button className="iconBtn" onClick={() => setPickerOpen(false)} type="button" aria-label="Close">
             <span className="x">×</span>
           </button>
         </div>
 
-        <div className="pickerList">
+        <div className="pickerList" aria-label="Week list">
           {weeks.map((w, idx) => (
             <button
               key={w.sunday}
+              type="button"
               className={`pickerItem ${idx === weekIndex ? 'active' : ''}`}
               onClick={() => {
                 onSelectWeek(idx);
                 setPickerOpen(false);
               }}
             >
-              <div className="pickerItemTitle">
-                {formatSundayLabel(w.sunday)}
-              </div>
-              <div className="pickerItemMeta">
-                {w.positions?.length ?? 0} positions
-              </div>
+              <div className="pickerItemTitle">{formatSundayLabel(w.sunday)}</div>
+              <div className="pickerItemMeta">{w.positions?.length ?? 0} positions</div>
             </button>
           ))}
         </div>
