@@ -246,16 +246,16 @@
       "sunday": "2026-04-12",
       "positions": [
         { "role": "인도자", "person": "노현준" },
-        { "role": "싱어", "people": ["김태희", "이민서", "서경채"] },
+        { "role": "싱어", "people": ["이아현", "박기현"] },
         { "role": "피아노", "person": "황재경" },
         { "role": "드럼", "person": "이진환" },
         { "role": "신디", "person": "" },
         { "role": "일렉", "person": "김승우" },
         { "role": "베이스", "person": "" },
         { "role": "어쿠스틱", "person": "" },
-        { "role": "ppt", "person": "박기현" },
-        { "role": "엔지니어", "person": "김용준" },
-        { "role": "회중", "people": ["이아현", "조영삼", "김태리", "홍우혁", "김제우"] }
+        { "role": "ppt", "person": "김용준" },
+        { "role": "엔지니어", "person": "서경채" },
+        { "role": "회중", "people": ["조영삼", "김태리", "홍우혁", "김제우", "이민서"] }
       ],
       "setlist": ["(coming soon)"]
     },
@@ -263,7 +263,7 @@
       "sunday": "2026-04-19",
       "positions": [
         { "role": "인도자", "person": "노현준" },
-        { "role": "싱어", "people": ["이아현", "이민서", "황재경", "김제우"] },
+        { "role": "싱어", "people": ["서경채", "김태희", "황재경", "김제우"] },
         { "role": "피아노", "person": "김태리" },
         { "role": "드럼", "person": "이진환" },
         { "role": "신디", "person": "" },
@@ -272,7 +272,7 @@
         { "role": "어쿠스틱", "person": "" },
         { "role": "ppt", "person": "박기현" },
         { "role": "엔지니어", "person": "김용준" },
-        { "role": "회중", "people": ["김태희", "홍우혁", "서경채"] }
+        { "role": "회중", "people": ["이아현", "홍우혁", "이민서"] }
       ],
       "setlist": ["(coming soon)"]
     },
@@ -280,7 +280,7 @@
       "sunday": "2026-04-26",
       "positions": [
         { "role": "인도자", "person": "노현준" },
-        { "role": "싱어", "people": ["김태희", "이아현", "이민서", "김승우"] },
+        { "role": "싱어", "people": ["김태희", "이아현", "김승우"] },
         { "role": "피아노", "person": "김태리" },
         { "role": "드럼", "person": "김제우" },
         { "role": "신디", "person": "" },
@@ -289,7 +289,7 @@
         { "role": "어쿠스틱", "person": "" },
         { "role": "ppt", "person": "박기현" },
         { "role": "엔지니어", "person": "서경채" },
-        { "role": "회중", "people": ["황재경", "이진환", "홍우혁"] }
+        { "role": "회중", "people": ["황재경", "이진환", "홍우혁", "이민서"] }
       ],
       "setlist": ["(coming soon)"]
     },
