@@ -445,6 +445,227 @@
         { "role": "회중", "people": ["김태리", "이진환", "홍우혁"] }
       ],
       "setlist": ["(coming soon)"]
-    }
+    },
+    {
+    "sunday": "2026-07-05",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["김태희", "이아현", "박기현"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "김승우" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "홍우혁" },
+      { "role": "엔지니어", "person": "서경채" },
+      { "role": "회중", "people": ["김태리", "김제우", "이민서", "노현준"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-07-12",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["김태희", "이민서", "김승우", "김제우"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "박기현" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "홍우혁" },
+      { "role": "엔지니어", "person": "서경채" },
+      { "role": "회중", "people": ["김태리", "이아현", "노현준"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-07-19",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["서경채", "이아현", "황재경"] },
+      { "role": "피아노", "person": "김태리" },
+      { "role": "드럼", "person": "김제우" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "김승우" },
+      { "role": "베이스", "person": "" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "박기현" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["김태희", "이민서", "조영삼", "노현준"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-07-26",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["김태희", "이민서", "박기현", "김승우"] },
+      { "role": "피아노", "person": "김태리" },
+      { "role": "드럼", "person": "김제우" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "노현준" },
+      { "role": "엔지니어", "person": "서경채" },
+      { "role": "회중", "people": ["홍우혁", "이진환", "황재경", "이아현"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-08-02",
+    "positions": [
+      { "role": "인도자", "person": "노현준" },
+      { "role": "싱어", "people": ["김태희", "이아현", "김승우"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "김용준" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["박기현", "김태리", "김제우", "이민서", "서경채"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-08-09",
+    "positions": [
+      { "role": "인도자", "person": "노현준" },
+      { "role": "싱어", "people": ["김태희", "이민서", "박기현"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "김승우" },
+      { "role": "베이스", "person": "" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "김용준" },
+      { "role": "엔지니어", "person": "서경채" },
+      { "role": "회중", "people": ["김태리", "조영삼", "김제우", "홍우혁", "이아현"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-08-16",
+    "positions": [
+      { "role": "인도자", "person": "노현준" },
+      { "role": "싱어", "people": ["서경채", "김태희", "황재경"] },
+      { "role": "피아노", "person": "김태리" },
+      { "role": "드럼", "person": "김제우" },
+      { "role": "신디", "person": "박기현" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "김용준" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["김승우", "이민서", "이아현"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-08-23",
+    "positions": [
+      { "role": "인도자", "person": "노현준" },
+      { "role": "싱어", "people": ["이아현", "이민서", "김승우"] },
+      { "role": "피아노", "person": "김태리" },
+      { "role": "드럼", "person": "김제우" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "김용준" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "박기현" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["김태희", "조영삼", "황재경", "서경채"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-08-30",
+    "positions": [
+      { "role": "인도자", "person": "노현준" },
+      { "role": "싱어", "people": ["김태희", "박기현"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "김승우" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "김용준" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["김태리", "김제우", "이민서", "서경채", "이아현"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-09-06",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["김태희", "이아현", "김제우"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "노현준" },
+      { "role": "엔지니어", "person": "서경채" },
+      { "role": "회중", "people": ["박기현", "김태리", "홍우혁", "이민서", "김승우"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-09-13",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["김태희", "이민서", "박기현"] },
+      { "role": "피아노", "person": "김태리" },
+      { "role": "드럼", "person": "김제우" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "김승우" },
+      { "role": "베이스", "person": "" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "홍우혁" },
+      { "role": "엔지니어", "person": "서경채" },
+      { "role": "회중", "people": ["황재경", "조영삼", "이아현", "노현준"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-09-20",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["서경채", "이아현", "황재경"] },
+      { "role": "피아노", "person": "김태리" },
+      { "role": "드럼", "person": "김제우" },
+      { "role": "신디", "person": "박기현" },
+      { "role": "일렉", "person": "" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "노현준" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["김태희", "김승우", "이민서"] }
+    ],
+    "setlist": ["(coming soon)"]
+  },
+  {
+    "sunday": "2026-09-27",
+    "positions": [
+      { "role": "인도자", "person": "김용준" },
+      { "role": "싱어", "people": ["김태희", "이민서", "박기현", "김제우"] },
+      { "role": "피아노", "person": "황재경" },
+      { "role": "드럼", "person": "이진환" },
+      { "role": "신디", "person": "" },
+      { "role": "일렉", "person": "김승우" },
+      { "role": "베이스", "person": "조영삼" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "노현준" },
+      { "role": "엔지니어", "person": "홍우혁" },
+      { "role": "회중", "people": ["김태리", "이아현", "서경채"] }
+    ],
+    "setlist": ["(coming soon)"]
+  }
   ]
 }
