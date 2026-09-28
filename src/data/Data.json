@@ -880,9 +880,9 @@
       { "role": "드럼", "person": "이진환" },
       { "role": "신디", "person": "김제우" },
       { "role": "일렉", "person": "김승우" },
-      { "role": "베이스", "person": "" },
-      { "role": "어쿠스틱", "person": "박기현" },
-      { "role": "ppt", "person": "김용준" },
+      { "role": "베이스", "person": "김용준" },
+      { "role": "어쿠스틱", "person": "" },
+      { "role": "ppt", "person": "박기현" },
       { "role": "엔지니어", "person": "홍우혁" },
       { "role": "회중", "people": ["이민서", "조영삼", "김태리"] }
     ],
