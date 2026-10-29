@@ -740,7 +740,7 @@
     "positions": [
       { "role": "인도자", "person": "김용준" },
       { "role": "싱어", "people": ["김승우", "이아현", "이민서"] },
-      { "role": "피아노", "person": "황재경" },
+      { "role": "피아노", "person": "김태리" },
       { "role": "드럼", "person": "이진환" },
       { "role": "신디", "person": "박기현" },
       { "role": "일렉", "person": "" },
@@ -748,7 +748,7 @@
       { "role": "어쿠스틱", "person": "" },
       { "role": "ppt", "person": "노현준" },
       { "role": "엔지니어", "person": "서경채" },
-      { "role": "회중", "people": ["김태희", "김제우", "김태리", "홍우혁"] }
+      { "role": "회중", "people": ["김태희", "김제우", "황재경", "홍우혁"] }
     ],
     "setlist": ["(coming soon)"]
   },
@@ -757,7 +757,7 @@
     "positions": [
       { "role": "인도자", "person": "김용준" },
       { "role": "싱어", "people": ["김태희", "이민서"] },
-      { "role": "피아노", "person": "황재경" },
+      { "role": "피아노", "person": "김태리" },
       { "role": "드럼", "person": "김제우" },
       { "role": "신디", "person": "박기현" },
       { "role": "일렉", "person": "" },
@@ -765,7 +765,7 @@
       { "role": "어쿠스틱", "person": "" },
       { "role": "ppt", "person": "노현준" },
       { "role": "엔지니어", "person": "홍우혁" },
-      { "role": "회중", "people": ["이아현", "김승우", "서경채", "이진환", "김태리"] }
+      { "role": "회중", "people": ["이아현", "김승우", "서경채", "이진환", "황재경"] }
     ],
     "setlist": ["(coming soon)"]
   },
@@ -773,7 +773,7 @@
     "sunday": "2026-11-15",
     "positions": [
       { "role": "인도자", "person": "김용준" },
-      { "role": "싱어", "people": ["김태희", "이아현", "노현준", "황재경"] },
+      { "role": "싱어", "people": ["김태희", "이아현", "노현준"] },
       { "role": "피아노", "person": "김태리" },
       { "role": "드럼", "person": "김제우" },
       { "role": "신디", "person": "박기현" },
@@ -782,7 +782,7 @@
       { "role": "어쿠스틱", "person": "" },
       { "role": "ppt", "person": "홍우혁" },
       { "role": "엔지니어", "person": "서경채" },
-      { "role": "회중", "people": ["김승우", "이민서", "이진환", "조영삼"] }
+      { "role": "회중", "people": ["김승우", "이민서", "이진환", "조영삼", "황재경"] }
     ],
     "setlist": ["(coming soon)"]
   },
@@ -808,7 +808,7 @@
     "positions": [
       { "role": "인도자", "person": "김용준" },
       { "role": "싱어", "people": ["김태희", "이아현", "이민서", "김승우"] },
-      { "role": "피아노", "person": "황재경" },
+      { "role": "피아노", "person": "김태리" },
       { "role": "드럼", "person": "이진환" },
       { "role": "신디", "person": "김제우" },
       { "role": "일렉", "person": "" },
@@ -816,7 +816,7 @@
       { "role": "어쿠스틱", "person": "" },
       { "role": "ppt", "person": "박기현" },
       { "role": "엔지니어", "person": "홍우혁" },
-      { "role": "회중", "people": ["노현준", "서경채", "김태리"] }
+      { "role": "회중", "people": ["노현준", "서경채", "황재경"] }
     ],
     "setlist": ["(coming soon)"]
   },
@@ -825,7 +825,7 @@
     "positions": [
       { "role": "인도자", "person": "노현준" },
       { "role": "싱어", "people": ["김승우", "이아현", "이민서"] },
-      { "role": "피아노", "person": "황재경" },
+      { "role": "피아노", "person": "김태리" },
       { "role": "드럼", "person": "김제우" },
       { "role": "신디", "person": "박기현" },
       { "role": "일렉", "person": "김용준" },
@@ -833,7 +833,7 @@
       { "role": "어쿠스틱", "person": "" },
       { "role": "ppt", "person": "홍우혁" },
       { "role": "엔지니어", "person": "서경채" },
-      { "role": "회중", "people": ["김태희", "이진환", "김태리"] }
+      { "role": "회중", "people": ["김태희", "이진환", "황재경"] }
     ],
     "setlist": ["(coming soon)"]
   },
