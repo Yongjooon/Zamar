@@ -26,9 +26,8 @@ export default function PasswordPage({ onToast }) {
   }
 
   return (
-    <section className="card scrollCard">
-      <div className="cardHead"><h2>비밀번호 변경</h2></div>
-      <form className="formStack padded" onSubmit={submit}>
+    <section className="card compactCard">
+      <form className="formStack padded settingsForm" onSubmit={submit}>
         <label>현재 비밀번호<input className="input" name="current" type="password" autoComplete="current-password" required /></label>
         <label>새 비밀번호<input className="input" name="password" type="password" autoComplete="new-password" minLength={MIN_PASSWORD_LENGTH} maxLength={128} required /></label>
         <label>새 비밀번호 확인<input className="input" name="confirm" type="password" autoComplete="new-password" minLength={MIN_PASSWORD_LENGTH} maxLength={128} required /></label>

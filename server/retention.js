@@ -5,7 +5,7 @@ const CHILD_BATCH_SIZE = 200;
 const PARENT_BATCH_SIZE = 8;
 const WORK_TIME_MS = 18000;
 
-async function removeExpired(db, ref, stillExpired, childCollections) {
+export async function removeExpired(db, ref, stillExpired, childCollections) {
   return db.runTransaction(async (transaction) => {
     const parent = await transaction.get(ref);
     if (!parent.exists || !stillExpired(parent.data())) return 0;

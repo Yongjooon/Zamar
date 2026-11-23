@@ -1,7 +1,7 @@
 import { TEAM_TIME_ZONE } from '../../shared/team.js';
 
 export function formatSundayLabel(isoSunday) {
-  return isoSunday.replaceAll('-', '.') + ' (Sun)';
+  return isoSunday.replaceAll('-', '.') + ' (일)';
 }
 
 export function upcomingSunday(date = new Date(), timeZone = TEAM_TIME_ZONE) {
