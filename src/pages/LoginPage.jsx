@@ -22,18 +22,23 @@ export default function LoginPage() {
 
   return (
     <main className="loginShell">
-      <section className="card loginCard">
-        <div className="brand">
-          <div className="brandMark">Z</div>
-          <div><div className="brandTitle">zamar</div><h1>로그인</h1></div>
+      <div className="loginLayout">
+        <div className="loginBrand">
+          <span className="brandMark" aria-hidden="true">Z<span>.</span></span>
+          <strong>Zamar</strong>
+          <p>찬양팀</p>
         </div>
-        <form className="formStack" onSubmit={submit}>
-          <label>아이디<input className="input" name="loginId" autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={40} required /></label>
-          <label>비밀번호<input className="input" name="password" type="password" autoComplete="current-password" maxLength={128} required /></label>
-          {error && <p className="formError" role="alert">{error}</p>}
-          <button className="primaryBtn" type="submit" disabled={busy}>{busy ? '처리 중…' : '로그인'}</button>
-        </form>
-      </section>
+        <section className="loginCard">
+          <h1>로그인</h1>
+          <p className="weekHint">팀 계정으로 로그인하세요.</p>
+          <form className="formStack" onSubmit={submit}>
+            <label>아이디<input className="input" name="loginId" autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={40} required /></label>
+            <label>비밀번호<input className="input" name="password" type="password" autoComplete="current-password" maxLength={128} required /></label>
+            {error && <p className="formError" role="alert">{error}</p>}
+            <button className="primaryBtn" type="submit" disabled={busy}>{busy ? '처리 중…' : '로그인'}</button>
+          </form>
+        </section>
+      </div>
     </main>
   );
 }

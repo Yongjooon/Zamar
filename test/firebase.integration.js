@@ -139,7 +139,12 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     assert.equal(created.status, 200);
     const post = created.result.post;
     const postRef = models.db.doc('boardPosts/' + post.id);
-    assert.deepEqual(Object.keys((await postRef.get()).data()).sort(), ['commentCount', 'createdAt', 'expiresAt', 'text']);
+    const storedPost = (await postRef.get()).data();
+    assert.deepEqual(Object.keys(storedPost).sort(), ['commentCount', 'createdAt', 'expiresAt', 'ownerKey', 'text']);
+    assert.match(storedPost.ownerKey, /^[a-f0-9]{64}$/);
+    assert.ok(!JSON.stringify(storedPost).includes(user.uid));
+    assert.equal(post.canDelete, true);
+    assert.ok(!Object.hasOwn(post, 'ownerKey'));
     await assert.rejects(getDocFromServer(docFor(member, 'boardPosts', post.id)), { code: 'permission-denied' });
     const replied = await request(board, 'POST', { type: 'comment', postId: post.id, text: '익명 댓글', uid: user.uid }, adminToken);
     assert.equal(replied.status, 200);
@@ -168,6 +173,25 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     assert.equal((await postRef.get()).exists, true);
     assert.equal((await models.db.doc('weeks/' + weekDate).get()).exists, true);
     assert.deepEqual((await request(retention, 'GET', null, process.env.CRON_SECRET)).result.removed, { weeks: 0, posts: 0 });
+
+    const ownerView = (await request(board, 'GET', null, token)).result.posts[0];
+    const otherView = (await request(board, 'GET', null, adminToken)).result.posts[0];
+    assert.equal(ownerView.canDelete, true);
+    assert.deepEqual(otherView, { ...ownerView, canDelete: false });
+    assert.ok(!Object.hasOwn(ownerView, 'ownerKey'));
+    assert.equal((await request(board, 'DELETE', { postId: post.id })).status, 401);
+    assert.equal((await request(board, 'DELETE', { postId: post.id, uid: user.uid }, adminToken)).status, 403);
+    assert.equal((await postRef.get()).exists, true);
+    const legacyPost = await models.db.collection('boardPosts').add({
+      text: '예전 익명 글', createdAt: storedPost.createdAt, expiresAt: storedPost.expiresAt, commentCount: 0,
+    });
+    assert.equal((await request(board, 'DELETE', { postId: legacyPost.id }, token)).status, 403);
+    assert.equal((await request(board, 'GET', null, token)).result.posts.find(({ id }) => id === legacyPost.id).canDelete, false);
+    assert.equal((await request(board, 'DELETE', { postId: post.id }, token)).status, 200);
+    assert.equal((await postRef.get()).exists, false);
+    assert.equal((await postRef.collection('comments').doc(replied.result.comment.id).get()).exists, false);
+    assert.equal((await request(board, 'GET', null, token, { postId: post.id })).status, 404);
+    assert.equal((await request(board, 'GET', null, token)).result.posts.some(({ id }) => id === post.id), false);
 
     await reauthenticateWithCredential(user, EmailAuthProvider.credential(accountEmail(loginId), initialPassword));
     await updatePassword(user, changedPassword);

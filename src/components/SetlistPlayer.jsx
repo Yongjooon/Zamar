@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadYouTubePlayer, youtubeUrl } from '../lib/youtube.js';
+import Icon from './Icon.jsx';
 
 export default function SetlistPlayer({ songs, playlistKey }) {
   const host = useRef(null);
@@ -65,24 +66,38 @@ export default function SetlistPlayer({ songs, playlistKey }) {
   }
 
   return (
-    <div className="padded formStack">
-      <div className="videoFrame" ref={host} />
-      {!ready && !message && <p className="weekHint" role="status">플레이어를 불러오는 중…</p>}
-      {message && <p className="formError" role="status">{message}</p>}
-      <div className="actionRow">
-        <button className="ghostBtn" type="button" onClick={() => play(selected - 1)} disabled={!ready || selected === 0}>이전 곡</button>
-        <button className="ghostBtn" type="button" onClick={() => play(selected + 1)} disabled={!ready || selected === songs.length - 1}>다음 곡</button>
-        <a className="textBtn" href={youtubeUrl(songs[selected].videoId)} target="_blank" rel="noreferrer">YouTube에서 열기</a>
-      </div>
-      <ol className="songList">
-        {songs.map((song, index) => (
-          <li key={song.id}>
-            <button className={'row songButton' + (index === selected ? ' selected' : '')} type="button" disabled={!ready} aria-current={index === selected ? 'true' : undefined} onClick={() => play(index)}>
-              <span>{index + 1}. {song.title}</span><span aria-hidden="true">▶</span>
-            </button>
-          </li>
-        ))}
-      </ol>
+    <div className="setlistGrid">
+      <section className="card playerCard" aria-label="YouTube 재생">
+        <div className="videoFrame">
+          <div className="videoPlaceholder"><Icon name="play" /></div>
+          <div className="videoHost" ref={host} />
+        </div>
+        <div className="padded formStack">
+          <h2>{songs[selected].title}</h2>
+          {!ready && !message && <p className="weekHint" role="status">플레이어를 불러오는 중…</p>}
+          {message && <p className="formError" role="status">{message}</p>}
+          <div className="actionRow playerActions">
+            <button className="iconBtn" aria-label="이전 곡" type="button" onClick={() => play(selected - 1)} disabled={!ready || selected === 0}><Icon name="chevLeft" /></button>
+            <button className="iconBtn" aria-label="다음 곡" type="button" onClick={() => play(selected + 1)} disabled={!ready || selected === songs.length - 1}><Icon name="chevRight" /></button>
+            <a className="textBtn" href={youtubeUrl(songs[selected].videoId)} target="_blank" rel="noreferrer">YouTube에서 열기<Icon name="external" /></a>
+          </div>
+        </div>
+      </section>
+      <section className="card playlistCard">
+        <div className="cardHead"><h2>재생목록</h2><span className="countLabel">{songs.length}곡</span></div>
+        <ol className="songList">
+          {songs.map((song, index) => (
+            <li key={song.id}>
+              <button className="songButton" type="button" disabled={!ready}
+                aria-current={index === selected ? 'true' : undefined} onClick={() => play(index)}>
+                <span className="songNumber">{index + 1}</span>
+                <span className="songTitle">{song.title}</span>
+                <Icon name={index === selected ? 'music' : 'play'} />
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }

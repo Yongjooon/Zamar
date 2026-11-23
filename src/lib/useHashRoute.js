@@ -13,10 +13,6 @@ function currentRoute() {
   return Object.keys(routes).find((route) => routes[route] === window.location.hash) ?? 'positions';
 }
 
-export function setRoute(route) {
-  window.location.hash = routes[route] ?? routes.positions;
-}
-
 export function useHashRoute() {
   const [route, setRouteState] = useState(currentRoute);
   useEffect(() => {

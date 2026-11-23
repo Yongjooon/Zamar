@@ -1,68 +1,61 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  color: #211b2d;
+  background: #f6f4f8;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --background: #f6f4f8;
+  --surface: #fff;
+  --ink: #211b2d;
+  --muted: #665e73;
+  --line: #e7e1ed;
+  --accent: #653980;
+  --accent-dark: #4c2865;
+  --accent-soft: #f0e7f7;
+  --danger: #9b263f;
+  --radius: 20px;
+  --tap: 46px;
+  --shadow: 0 5px 16px rgba(48, 29, 65, .045);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  min-height: 100%;
+  scroll-padding-top: 16px;
+  scroll-padding-bottom: 100px;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+html:has(dialog[open]) { overflow: hidden; }
+
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+
+button, input, textarea {
+  min-width: 0;
+  font: inherit;
+  color: inherit;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .55; }
+svg { flex: none; vertical-align: middle; }
+
+:focus-visible {
+  outline: 3px solid #8653ae;
+  outline-offset: 3px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+::selection { background: #e7d6f4; color: var(--accent-dark); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }

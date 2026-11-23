@@ -75,14 +75,14 @@ export default function WeekEditor({ sunday, kind, onClose, onSaved }) {
   }
 
   return (
-    <section className="card scrollCard">
+    <section className="card editorCard">
       <div className="cardHead">
-        <div><strong>{positions ? '포지션 편집' : 'Setlist 편집'}</strong><div className="weekHint">{sunday}</div></div>
+        <h2>{sunday}</h2>
         <button type="button" className="ghostBtn" onClick={onClose} disabled={busy}>닫기</button>
       </div>
       <form className="formStack padded" onSubmit={submit}>
         {!source && !error && <p className="weekHint" role="status">편집할 목록을 불러오는 중…</p>}
-        {rows.map((row, index) => (
+        <div className="editorGrid">{rows.map((row, index) => (
           <fieldset key={row.id} className="formStack editorRow" disabled={busy}>
             <legend>{positions ? '포지션' : '곡'} {index + 1}</legend>
             {positions ? (
@@ -102,7 +102,7 @@ export default function WeekEditor({ sunday, kind, onClose, onSaved }) {
               <button className="ghostBtn" type="button" onClick={() => setRows((current) => current.filter(({ id }) => id !== row.id))}>빼기</button>
             </div>
           </fieldset>
-        ))}
+        ))}</div>
         {error && <p className="formError" role="alert">{error}</p>}
         {source && (
           <div className="actionRow">
