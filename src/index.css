@@ -1,23 +1,26 @@
 :root {
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
-  color: #211b2d;
-  background: #f6f4f8;
+  color: var(--ink);
+  background: var(--background);
   color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --background: #f6f4f8;
+  --background: #f5f6f7;
   --surface: #fff;
-  --ink: #211b2d;
-  --muted: #665e73;
-  --line: #e7e1ed;
-  --accent: #653980;
-  --accent-dark: #4c2865;
-  --accent-soft: #f0e7f7;
+  --ink: #20262c;
+  --muted: #565f69;
+  --line: #dde2e6;
+  --field-border: #cbd2d9;
+  --accent: #344652;
+  --accent-dark: #25343e;
+  --accent-soft: #edf1f3;
+  --focus: #527184;
+  --inverse-muted: #d5dfe5;
   --danger: #9b263f;
   --radius: 20px;
   --tap: 46px;
-  --shadow: 0 5px 16px rgba(48, 29, 65, .045);
+  --shadow: 0 5px 16px rgba(32, 38, 44, .045);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -50,11 +53,11 @@ button:disabled { cursor: default; opacity: .55; }
 svg { flex: none; vertical-align: middle; }
 
 :focus-visible {
-  outline: 3px solid #8653ae;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
-::selection { background: #e7d6f4; color: var(--accent-dark); }
+::selection { background: #dce6ec; color: var(--accent-dark); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
