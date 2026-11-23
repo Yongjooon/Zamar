@@ -7,8 +7,8 @@
   "start_url": "/#/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f5f6f7",
-  "theme_color": "#ffffff",
+  "background_color": "#f2f6f1",
+  "theme_color": "#fcfefb",
   "icons": [
     { "src": "/zamar-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/zamar-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }

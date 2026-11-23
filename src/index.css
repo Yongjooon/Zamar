@@ -6,21 +6,22 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --background: #f5f6f7;
+  --background: #f2f6f1;
   --surface: #fff;
-  --ink: #20262c;
-  --muted: #565f69;
-  --line: #dde2e6;
-  --field-border: #cbd2d9;
-  --accent: #344652;
-  --accent-dark: #25343e;
-  --accent-soft: #edf1f3;
-  --focus: #527184;
-  --inverse-muted: #d5dfe5;
+  --shell: #fcfefb;
+  --ink: #192a22;
+  --muted: #4e6256;
+  --line: #d8e4d9;
+  --field-border: #b8ccbf;
+  --accent: #236247;
+  --accent-dark: #164533;
+  --accent-soft: #e4f0e5;
+  --focus: #387756;
+  --inverse-muted: #d2ebd9;
   --danger: #9b263f;
   --radius: 20px;
   --tap: 46px;
-  --shadow: 0 5px 16px rgba(32, 38, 44, .045);
+  --shadow: 0 5px 16px rgba(22, 56, 39, .06);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -57,7 +58,7 @@ svg { flex: none; vertical-align: middle; }
   outline-offset: 3px;
 }
 
-::selection { background: #dce6ec; color: var(--accent-dark); }
+::selection { background: #d5eadb; color: var(--accent-dark); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
