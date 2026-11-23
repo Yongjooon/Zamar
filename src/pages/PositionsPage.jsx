@@ -1,5 +1,5 @@
 // src/pages/PositionsPage.jsx
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Icon from '../components/Icon.jsx';
 import { formatSundayLabel } from '../lib/date.js';
 
@@ -11,8 +11,11 @@ export default function PositionsPage({
   onPrevWeek,
   onNextWeek,
   onSelectWeek,
+  result,
+  onEdit,
+  onAdd,
 }) {
-  const positions = useMemo(() => (week ? [...week.positions] : []), [week]);
+  const positions = result?.entries ?? [];
   const [pickerOpen, setPickerOpen] = useState(false);
 
   /* =========================================================
@@ -144,6 +147,7 @@ export default function PositionsPage({
           <button
             type="button"
             className="weekLabel weekLabelBtn"
+            disabled={!weeksCount}
             onClick={() => setPickerOpen(true)}
           >
             {week ? formatSundayLabel(week.sunday) : '-'}
@@ -165,7 +169,7 @@ export default function PositionsPage({
           </button>
           <button
             className="pillBtn"
-            disabled={weekIndex === weeksCount - 1}
+            disabled={weekIndex >= weeksCount - 1}
             onClick={() => animate('next', onNextWeek)}
             type="button"
           >
@@ -173,6 +177,13 @@ export default function PositionsPage({
           </button>
         </div>
       </div>
+
+      {(onEdit || onAdd) && (
+        <div className="padded actionRow positionActions">
+          {onEdit && <button className="ghostBtn" type="button" onClick={onEdit}>배정 편집</button>}
+          {onAdd && <button className="ghostBtn" type="button" onClick={onAdd}>주차 추가</button>}
+        </div>
+      )}
 
       {/* ================= List (여기만 스크롤) ================= */}
       <div
@@ -186,14 +197,14 @@ export default function PositionsPage({
           paddingBottom: 'calc(14px + env(safe-area-inset-bottom))',
         }}
       >
+        {!week && <p className="weekHint">등록된 주차가 없습니다.</p>}
+        {week && !result && <p className="weekHint" role="status">배정 정보를 불러오는 중…</p>}
+        {result?.error && <p className="formError" role="alert">{result.error}</p>}
         {positions.map((p) => {
-          const people =
-            Array.isArray(p.people) && p.people.length > 0
-              ? p.people.join(' · ')
-              : p.person ?? '-';
+          const people = p.assignees.join(' · ') || '-';
 
           return (
-            <div key={p.role} className="row">
+            <div key={p.id} className="row">
               <div className="role">
                 <div className="roleName">{p.role}</div>
               </div>
@@ -233,7 +244,7 @@ export default function PositionsPage({
               type="button"
             >
               <div className="pickerItemTitle">{formatSundayLabel(w.sunday)}</div>
-              <div className="pickerItemMeta">{w.positions?.length ?? 0} positions</div>
+              <div className="pickerItemMeta">{w.positionCount} positions</div>
             </button>
           ))}
         </div>

@@ -1,3 +1,47 @@
 # Zamar
 
-100% 바이브 코딩으로 찬양팀 포지션 관리 모바일 웹페이지 만들기
+찬양팀의 주차별 포지션과 Setlist를 관리하는 모바일 웹앱입니다. React/Vite 화면은 Vercel에서 배포하고, Firebase Authentication과 Firestore를 사용합니다. 관리자의 계정 생성과 삭제는 Vercel Functions에서 처리합니다.
+
+## Firebase 설정
+
+1. Firebase에서 Spark 프로젝트와 웹 앱을 만들고 Firestore Standard의 기본 DB를 프로덕션 모드로 생성합니다. 주 사용자가 한국이면 데이터 위치는 서울(`asia-northeast3`)을 선택합니다.
+2. Authentication의 로그인 방법에서 이메일/비밀번호를 켭니다. Authentication 설정의 사용자 작업에서 최종 사용자의 계정 생성과 삭제를 **둘 다 차단**합니다. 해당 설정을 위해 필요하면 Authentication with Identity Platform을 활성화할 수 있으며 Spark에서는 무료 사용자 한도가 적용됩니다. 배포 전 웹 SDK의 직접 가입 요청이 거부되는지 확인합니다.
+3. Vercel 프로젝트의 환경 변수에 `.env.example`의 값을 설정합니다. `VITE_FIREBASE_*`는 Firebase 웹 앱 설정값입니다. 서버용 `FIREBASE_PROJECT_ID`는 같은 프로젝트 ID이며, `FIREBASE_SERVICE_ACCOUNT_JSON`에는 해당 프로젝트의 Admin 서비스 계정 JSON 전체를 넣습니다. `ZAMAR_INITIAL_PASSWORD`는 팀에서 정한 공통 초기 비밀번호입니다. 관리자 자격 증명과 초기 비밀번호는 서버 환경에만 넣습니다. 운영과 미리보기에서 다른 Firebase 프로젝트를 쓰는 경우 변수도 각각 지정합니다.
+4. Firebase CLI에 계정으로 로그인한 후 Firestore 보안 규칙을 올립니다. `PROJECT_ID`에는 배포하려는 Firebase 프로젝트 ID를 넣습니다.
+
+   ```sh
+   npx firebase-tools deploy --only firestore:rules --project PROJECT_ID
+   ```
+
+5. 로컬에서 npm 의존성을 설치한 뒤 아래 명령을 실행합니다. `.env.local`에 서버 프로젝트 ID와 Admin 자격 증명, 공통 초기 비밀번호를 설정합니다. 서비스 계정 JSON은 서버 환경 변수나 `GOOGLE_APPLICATION_CREDENTIALS`로 제공할 수 있습니다. 첫 관리자에게 별도 비밀번호를 지정하려면 `ZAMAR_ADMIN_PASSWORD` 환경 변수를 지정합니다. 이 값이 없으면 `ZAMAR_INITIAL_PASSWORD`를 사용합니다.
+
+   ```sh
+   npm run seed:data
+   npm run seed:data -- --apply
+   npm run create:admin -- admin "관리자 이름"
+   ```
+
+   데이터 이관은 기존 주차와 팀 설정을 덮어쓰지 않습니다. 소스 JSON은 초기 이관에 사용하며 브라우저의 런타임 데이터는 Firestore에서 읽습니다. 배포 전 Firebase의 규칙과 Vercel의 환경 변수가 같은 프로젝트를 가리키는지 확인하세요.
+
+## 사용 방법
+
+- 관리자가 아이디와 이름으로 계정을 만들면 사용자는 아이디와 공통 초기 비밀번호로 바로 로그인할 수 있습니다. **메뉴 → 비밀번호 변경**에서 본인 비밀번호를 변경할 수 있습니다.
+- **Positions**에서 주차 추가와 배정 편집을, **Setlist**에서 곡 등록과 순서 변경을 할 수 있습니다. 일반 사용자는 팀 데이터 조회와 자기 비밀번호 변경이 가능합니다.
+- iPhone은 Safari의 **공유 → 홈 화면에 추가 → 웹 앱으로 열기**, Android는 Chrome의 **설치 또는 바로가기 만들기 → 설치**를 이용합니다.
+
+## 개발과 검사
+
+```sh
+npm ci
+npm run lint
+npm test
+npm run build
+```
+
+Firebase 권한 통합 검사는 로컬 Java 21 환경에서 실행합니다. 테스트는 `demo-zamar` 에뮬레이터의 데이터만 초기화합니다.
+
+```sh
+npx firebase-tools emulators:exec --project demo-zamar --only auth,firestore "npm run test:firebase"
+```
+
+`npm run dev`로 브라우저 UI를 개발할 수 있습니다. 계정 생성·삭제 API까지 실행하려면 Vercel 프로젝트를 연결한 다음 `npx vercel dev`를 사용합니다.

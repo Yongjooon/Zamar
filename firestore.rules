@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function profilePath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function active() {
+      return request.auth != null && exists(profilePath()) && get(profilePath()).data.status == 'active';
+    }
+
+    function admin() {
+      return active() && get(profilePath()).data.role == 'admin';
+    }
+
+    function text(value, limit) {
+      return value is string && value.size() > 0 && value.size() <= limit;
+    }
+
+    function order(value) {
+      return value is int && value >= 0 && value < 30;
+    }
+
+    match /users/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    match /config/team {
+      allow read: if active();
+      allow create, update: if admin()
+        && request.resource.data.keys().hasOnly(['teamName', 'timezone'])
+        && text(request.resource.data.teamName, 80)
+        && text(request.resource.data.timezone, 64);
+    }
+
+    match /weeks/{sunday} {
+      function validWeek() {
+        let values = request.resource.data;
+        return values.keys().hasOnly(['sunday', 'positionCount', 'positionsRevision', 'songsRevision'])
+          && sunday.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}') && values.sunday == sunday
+          && values.positionCount is int && values.positionCount >= 0 && values.positionCount <= 30
+          && values.positionsRevision is int && values.positionsRevision >= 0
+          && values.songsRevision is int && values.songsRevision >= 0;
+      }
+
+      function editWithWeek(field) {
+        let week = /databases/$(database)/documents/weeks/$(sunday);
+        return existsAfter(week) && ((!exists(week) && getAfter(week).data[field] == 0)
+          || (exists(week) && getAfter(week).data[field] == get(week).data[field] + 1));
+      }
+
+      allow read: if active();
+      allow create: if admin() && validWeek()
+        && request.resource.data.positionsRevision == 0 && request.resource.data.songsRevision == 0;
+      allow update: if admin() && validWeek()
+        && ((request.resource.data.positionsRevision == resource.data.positionsRevision + 1
+              && request.resource.data.songsRevision == resource.data.songsRevision)
+            || (request.resource.data.positionsRevision == resource.data.positionsRevision
+              && request.resource.data.positionCount == resource.data.positionCount
+              && request.resource.data.songsRevision == resource.data.songsRevision + 1));
+
+      match /positions/{positionId} {
+        allow read: if active();
+        allow create, update: if admin() && editWithWeek('positionsRevision')
+          && request.resource.data.keys().hasOnly(['role', 'assignees', 'order'])
+          && text(request.resource.data.role, 60)
+          && request.resource.data.assignees is list && request.resource.data.assignees.size() <= 30
+          && order(request.resource.data.order);
+        allow delete: if admin() && editWithWeek('positionsRevision');
+      }
+
+      match /songs/{songId} {
+        allow read: if active();
+        allow create, update: if admin() && editWithWeek('songsRevision')
+          && request.resource.data.keys().hasOnly(['title', 'videoId', 'order'])
+          && text(request.resource.data.title, 120)
+          && request.resource.data.videoId is string
+          && request.resource.data.videoId.matches('[A-Za-z0-9_-]{11}')
+          && order(request.resource.data.order);
+        allow delete: if admin() && editWithWeek('songsRevision');
+      }
+    }
+  }
+}

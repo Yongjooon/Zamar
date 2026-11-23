@@ -203,3 +203,39 @@ body{display:block}
   overflow: hidden;   /* ⭐ 바깥 스크롤 금지 */
 }
 
+.loginShell{
+  min-height:100dvh;
+  display:grid;
+  place-items:center;
+  overflow:auto;
+  height:100dvh;
+  padding:calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
+}
+.loginCard{width:min(100%,400px);padding:24px}
+.loginCard h1{font-size:24px;line-height:1.2;margin:3px 0 0}
+.loginCard form{margin-top:20px}
+.topbar{padding-top:calc(14px + env(safe-area-inset-top))}
+.drawer{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);height:100dvh}
+.scrollCard{min-height:0;overflow:auto;overscroll-behavior:contain}
+.scrollCard h2,.scrollCard h3,.formStack p{margin:0}
+.scrollCard h2{font-size:18px}
+.scrollCard h3{font-size:15px}
+.formStack{display:flex;flex-direction:column;gap:12px}
+.formStack label{display:flex;flex-direction:column;gap:5px;font-size:13px}
+.formStack label>.input{font-size:16px}
+.formStack button:disabled,.songButton:disabled{opacity:.55;cursor:not-allowed}
+.formError{color:#ffb2b0;font-size:13px;overflow-wrap:anywhere}
+.padded{padding:10px 14px 16px}
+.actionRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.actionRow>button,.formStack>.primaryBtn{padding-inline:14px;min-height:44px}
+.textBtn{background:transparent;border:0;color:#bfcbff;text-decoration:underline;padding:8px 0;font-size:13px;cursor:pointer}
+.editorRow{border:1px solid var(--line);border-radius:var(--r2);padding:12px;min-width:0;margin:0}
+.editorRow legend{padding:0 5px;color:var(--muted);font-size:13px}
+.entryLabel{min-width:0;overflow-wrap:anywhere}
+.wrapRow{gap:12px;flex-wrap:wrap}
+.positionActions{padding-top:0;padding-bottom:10px}
+.videoFrame{width:100%;min-height:200px;aspect-ratio:16/9;background:#080a0e;border-radius:var(--r2);overflow:hidden}
+.videoFrame iframe{width:100%;height:100%;border:0}
+.songList{margin:0;padding:0;display:grid;gap:8px;list-style:none}
+.songButton{width:100%;text-align:left;color:var(--text);font-size:14px;overflow-wrap:anywhere}
+.songButton.selected{background:rgba(143,162,255,.18);border-color:rgba(143,162,255,.58)}
