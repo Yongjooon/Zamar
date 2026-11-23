@@ -28,7 +28,7 @@ export function route(methods, action) {
   };
 }
 
-export async function requireAdmin({ auth, db }, request) {
+export async function requireActiveUser({ auth, db }, request) {
   const token = /^Bearer ([^ ]+)$/.exec(request.headers.authorization ?? '')?.[1];
   if (!token) throw new HttpError(401, '로그인이 필요합니다.');
 
@@ -39,8 +39,12 @@ export async function requireAdmin({ auth, db }, request) {
     throw new HttpError(401, '다시 로그인해 주세요.');
   }
   const profile = (await db.collection('users').doc(identity.uid).get()).data();
-  if (profile?.role !== 'admin' || profile.status !== 'active') {
-    throw new HttpError(403, '관리자 권한이 필요합니다.');
-  }
-  return identity.uid;
+  if (profile?.status !== 'active') throw new HttpError(403, '사용할 수 있는 계정이 없습니다.');
+  return { uid: identity.uid, profile };
+}
+
+export async function requireAdmin(firebase, request) {
+  const { uid, profile } = await requireActiveUser(firebase, request);
+  if (profile.role !== 'admin') throw new HttpError(403, '관리자 권한이 필요합니다.');
+  return uid;
 }

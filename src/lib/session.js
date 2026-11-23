@@ -56,7 +56,7 @@ export async function changePassword(current, password) {
   }
 }
 
-export async function accountRequest(path, { method = 'GET', data, authorized = false, signal } = {}) {
+export async function apiRequest(path, { method = 'GET', data, authorized = false, signal } = {}) {
   const headers = {};
   if (authorized) {
     const user = auth.currentUser;

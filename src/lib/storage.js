@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { collection, doc, getDocFromServer, getDocsFromServer, onSnapshot, orderBy, query, runTransaction, setDoc } from 'firebase/firestore';
+import { collection, doc, getDocFromServer, getDocsFromServer, onSnapshot, orderBy, query, runTransaction, setDoc, where } from 'firebase/firestore';
+import { weekRetentionCutoff } from '../../shared/retention.js';
 import { isSunday, isTimeZone, MAX_ENTRIES, POSITION_ROLES } from '../../shared/team.js';
 import { db } from './firebase.js';
 
-export function useTeam() {
+export function useTeam(now) {
+  const cutoff = weekRetentionCutoff(now);
   const [team, setTeam] = useState(null);
   const [weeks, setWeeks] = useState(null);
   const [error, setError] = useState('');
@@ -13,16 +15,16 @@ export function useTeam() {
       if (snapshot.exists()) setTeam(snapshot.data());
       else setError('팀 정보가 없습니다. 초기 데이터 이관을 확인해 주세요.');
     }, () => setError('팀 정보를 불러오지 못했습니다.'));
-    const stopWeeks = onSnapshot(query(collection(db, 'weeks'), orderBy('sunday')), (snapshot) => {
+    const stopWeeks = onSnapshot(query(collection(db, 'weeks'), where('sunday', '>=', cutoff), orderBy('sunday')), (snapshot) => {
       setWeeks(snapshot.docs.map((entry) => ({ id: entry.id, ...entry.data() })));
     }, () => setError('주차 목록을 불러오지 못했습니다.'));
     return () => {
       stopTeam();
       stopWeeks();
     };
-  }, []);
+  }, [cutoff]);
 
-  return { team, weeks, error };
+  return { team, weeks: weeks?.filter(({ sunday }) => sunday >= cutoff) ?? null, error };
 }
 
 export function useWeekEntries(sunday, kind) {
@@ -35,11 +37,16 @@ export function useWeekEntries(sunday, kind) {
     }, () => setResult({ sunday, kind, error: '목록을 불러오지 못했습니다.' }));
   }, [kind, sunday]);
 
-  return result?.sunday === sunday && result.kind === kind ? result : null;
+  return result && result.sunday === sunday && result.kind === kind ? result : null;
+}
+
+function assertRetained(sunday) {
+  if (!isSunday(sunday)) throw new Error('일요일 날짜를 선택해 주세요.');
+  if (sunday < weekRetentionCutoff()) throw new Error('오늘 기준 1년보다 오래된 주차입니다.');
 }
 
 export async function createWeek(sunday) {
-  if (!isSunday(sunday)) throw new Error('일요일 날짜를 선택해 주세요.');
+  assertRetained(sunday);
   const weekRef = doc(db, 'weeks', sunday);
   await runTransaction(db, async (transaction) => {
     if ((await transaction.get(weekRef)).exists()) throw new Error('이미 등록된 주차입니다.');
@@ -53,6 +60,7 @@ export async function createWeek(sunday) {
 }
 
 export async function loadEditorEntries(sunday, kind) {
+  assertRetained(sunday);
   const weekRef = doc(db, 'weeks', sunday);
   const versionField = kind === 'positions' ? 'positionsRevision' : 'songsRevision';
   const before = (await getDocFromServer(weekRef)).data();
@@ -66,6 +74,7 @@ export async function loadEditorEntries(sunday, kind) {
 }
 
 export async function saveWeekEntries(sunday, kind, originalIds, revision, entries) {
+  assertRetained(sunday);
   if (entries.length > MAX_ENTRIES) throw new Error('한 주차에는 최대 30개까지 등록할 수 있습니다.');
   const weekRef = doc(db, 'weeks', sunday);
   const versionField = kind === 'positions' ? 'positionsRevision' : 'songsRevision';

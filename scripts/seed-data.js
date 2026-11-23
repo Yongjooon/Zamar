@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { getFirebaseAdmin } from '../server/firebase-admin.js';
+import { weekRetentionCutoff } from '../shared/retention.js';
 import { isSunday, isTimeZone, MAX_ASSIGNEES, MAX_ENTRIES } from '../shared/team.js';
 
 function text(value, limit) {
@@ -43,8 +44,10 @@ try {
         transaction.create(teamRef, { teamName: source.teamName, timezone: source.timezone });
       }
     });
+    const cutoff = weekRetentionCutoff();
+    const retained = weeks.filter(({ sunday }) => sunday >= cutoff);
     let added = 0;
-    for (const { sunday, assignments } of weeks) {
+    for (const { sunday, assignments } of retained) {
       const weekRef = db.collection('weeks').doc(sunday);
       const created = await db.runTransaction(async (transaction) => {
         if ((await transaction.get(weekRef)).exists) return false;
@@ -58,7 +61,8 @@ try {
       });
       if (created) added += 1;
     }
-    console.log('Imported ' + added + ' weeks; skipped ' + (weeks.length - added) + ' existing weeks.');
+    console.log('Imported ' + added + ' weeks; skipped ' + (retained.length - added) + ' existing weeks.');
+    if (retained.length < weeks.length) console.log('Skipped ' + (weeks.length - retained.length) + ' expired weeks.');
   } else {
     console.log('Dry run. Add --apply to write to Firebase.');
   }

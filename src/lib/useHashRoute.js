@@ -3,12 +3,13 @@ import { useEffect, useState } from 'react';
 const routes = {
   positions: '#/',
   setlist: '#/setlist',
-  chat: '#/chat',
+  board: '#/board',
   password: '#/password',
   admin: '#/admin',
 };
 
 function currentRoute() {
+  if (window.location.hash === '#/chat') return 'board';
   return Object.keys(routes).find((route) => routes[route] === window.location.hash) ?? 'positions';
 }
 
