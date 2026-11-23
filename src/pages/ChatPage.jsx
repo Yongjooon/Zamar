@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { formatSundayLabel } from '../lib/date.js';
 
 export default function ChatPage({ week, onToast }) {
   const weekKey = week?.sunday ?? 'unknown';
-  const CHAT_KEY = useMemo(() => `zamar_chat_${weekKey}`, [weekKey]);
+  const CHAT_KEY = `zamar_chat_${weekKey}`;
 
   const [messages, setMessages] = useState(() => {
     try {
@@ -18,20 +18,6 @@ export default function ChatPage({ week, onToast }) {
 
   const [author, setAuthor] = useState('Anonymous');
   const [text, setText] = useState('');
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CHAT_KEY);
-      if (!raw) {
-        setMessages([{ id: 'seed', author: 'System', text: 'Chat is ready. (mock)' }]);
-        return;
-      }
-      const parsed = JSON.parse(raw);
-      setMessages(Array.isArray(parsed) ? parsed : []);
-    } catch {
-      setMessages([{ id: 'seed', author: 'System', text: 'Chat is ready. (mock)' }]);
-    }
-  }, [CHAT_KEY]);
 
   useEffect(() => {
     localStorage.setItem(CHAT_KEY, JSON.stringify(messages, null, 2));

@@ -7,9 +7,15 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test test/unit.test.js",
+    "test:firebase": "node --test test/firebase.integration.js",
+    "seed:data": "node --env-file-if-exists=.env.local scripts/seed-data.js",
+    "create:admin": "node --env-file-if-exists=.env.local scripts/create-admin.js"
   },
   "dependencies": {
+    "firebase": "^13.4.0",
+    "firebase-admin": "^14.5.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
