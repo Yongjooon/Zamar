@@ -175,13 +175,7 @@ body{display:block}
 .menuIcon{width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);display:grid;place-items:center;flex:0 0 auto}
 .menuTitle{font-weight:950;margin-bottom:2px}
 .menuDesc{font-size:12px;color:var(--muted)}
-.chat{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
-.chatComposer{border:1px solid var(--line);border-radius:var(--r2);padding:12px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;gap:10px}
-.chatRow{display:flex;gap:10px}
-.chatHint{font-size:12px;color:rgba(255,255,255,.50)}
-.chatList{display:flex;flex-direction:column;gap:10px}
 .bubble{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:16px;padding:12px}
-.bubbleAuthor{font-weight:950;font-size:12px;color:rgba(255,255,255,.85);margin-bottom:6px}
 .bubbleText{font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
 .toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(20,22,30,.92);border:1px solid rgba(255,255,255,.14);color:var(--text);padding:10px 12px;border-radius:14px;box-shadow:var(--shadow);z-index:60;font-size:12px;font-weight:800}
 
@@ -239,3 +233,9 @@ body{display:block}
 .songList{margin:0;padding:0;display:grid;gap:8px;list-style:none}
 .songButton{width:100%;text-align:left;color:var(--text);font-size:14px;overflow-wrap:anywhere}
 .songButton.selected{background:rgba(143,162,255,.18);border-color:rgba(143,162,255,.58)}
+
+.boardInput{height:auto;min-height:52px;padding:8px 12px;resize:vertical}
+.boardMeta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.boardComments{border-top:1px solid var(--line);padding-top:12px}
+.boardComment{background:rgba(255,255,255,.04);border-radius:var(--r2);padding:10px}
+.boardComment .boardMeta{margin-bottom:5px}

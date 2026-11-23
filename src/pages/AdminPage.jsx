@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { accountRequest } from '../lib/session.js';
+import { apiRequest } from '../lib/session.js';
 import { saveTeam } from '../lib/storage.js';
 
 const statusText = { active: '사용 중', deleting: '삭제 중' };
 
 function getAccounts(after, signal) {
-  return accountRequest(after ? '/api/accounts?after=' + encodeURIComponent(after) : '/api/accounts', {
+  return apiRequest(after ? '/api/accounts?after=' + encodeURIComponent(after) : '/api/accounts', {
     authorized: true, signal,
   });
 }
@@ -37,7 +37,7 @@ export default function AdminPage({ team, onToast }) {
     setBusy(true);
     setError('');
     try {
-      await accountRequest('/api/accounts', {
+      await apiRequest('/api/accounts', {
         method: 'POST', data: Object.fromEntries(new FormData(form)), authorized: true,
       });
       form.reset();
@@ -57,7 +57,7 @@ export default function AdminPage({ team, onToast }) {
     setBusy(true);
     setError('');
     try {
-      await accountRequest('/api/accounts', { method: 'DELETE', data: { uid: account.uid }, authorized: true });
+      await apiRequest('/api/accounts', { method: 'DELETE', data: { uid: account.uid }, authorized: true });
       setResult((accounts) => accounts.filter(({ uid }) => uid !== account.uid));
       onToast('계정을 삭제했습니다.');
     } catch (error) {

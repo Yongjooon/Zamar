@@ -8,7 +8,7 @@ import Icon from './components/Icon.jsx';
 import Toast from './components/Toast.jsx';
 import WeekEditor from './components/WeekEditor.jsx';
 import AdminPage from './pages/AdminPage.jsx';
-import ChatPage from './pages/ChatPage.jsx';
+import BoardPage from './pages/BoardPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import PasswordPage from './pages/PasswordPage.jsx';
 import PositionsPage from './pages/PositionsPage.jsx';
@@ -23,7 +23,7 @@ import { setRoute, useHashRoute } from './lib/useHashRoute.js';
 const navigation = [
   { route: 'positions', title: 'Positions', description: 'View weekly instrument positions', icon: 'chevRight' },
   { route: 'setlist', title: 'Setlist', description: 'View songs for the selected week', icon: 'music' },
-  { route: 'chat', title: 'Chat', description: 'Post casual messages', icon: 'chat' },
+  { route: 'board', title: '익명 게시판', description: '글과 댓글 쓰기', icon: 'chat' },
   { route: 'password', title: '비밀번호 변경', icon: 'edit' },
   { route: 'admin', title: '관리자', icon: 'menu' },
 ];
@@ -85,11 +85,11 @@ function TeamApp({ profile }) {
   const requestedRoute = useHashRoute();
   const admin = profile.role === 'admin';
   const route = requestedRoute === 'admin' && !admin ? 'positions' : requestedRoute;
-  const { team, weeks, error } = useTeam();
+  const [now, setNow] = useState(() => new Date());
+  const { team, weeks, error } = useTeam(now);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState('');
   const [selectedSunday, setSelectedSunday] = useState(null);
-  const [now, setNow] = useState(() => new Date());
   const [editor, setEditor] = useState(null);
 
   useEffect(() => {
@@ -155,7 +155,7 @@ function TeamApp({ profile }) {
         {activeEditor === 'edit' && <WeekEditor key={route + week.sunday} sunday={week.sunday} kind={kind} onClose={() => setEditor(null)} onSaved={setToast} />}
         {activeEditor === 'new' && <NewWeekForm initialDate={upcomingSunday(now, team?.timezone)} onCreated={finishedWeek} onClose={() => setEditor(null)} />}
 
-        {team && weeks && route === 'chat' && (week ? <ChatPage key={week.sunday} week={week} onToast={setToast} /> : <p className="weekHint">등록된 주차가 없습니다.</p>)}
+        {route === 'board' && <BoardPage now={now} />}
         {route === 'password' && <PasswordPage onToast={setToast} />}
         {team && route === 'admin' && <AdminPage team={team} onToast={setToast} />}
       </main>

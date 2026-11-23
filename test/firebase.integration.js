@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { Timestamp } from 'firebase-admin/firestore';
 import { test } from 'node:test';
 import { deleteApp, initializeApp } from 'firebase/app';
 import {
@@ -11,8 +13,12 @@ import {
   getFirestore, setDoc, terminate, updateDoc, writeBatch,
 } from 'firebase/firestore';
 import accounts from '../api/accounts.js';
+import board from '../api/board.js';
+import retention from '../api/retention.js';
 import { getFirebaseAdmin } from '../server/firebase-admin.js';
 import { accountEmail } from '../shared/identity.js';
+import { weekRetentionCutoff } from '../shared/retention.js';
+import { upcomingSunday } from '../src/lib/date.js';
 
 const projectId = 'demo-zamar';
 const initialPassword = 'demo-invitation';
@@ -25,6 +31,7 @@ if (!emulatorAddress.test(process.env.FIREBASE_AUTH_EMULATOR_HOST ?? '') ||
 }
 process.env.FIREBASE_PROJECT_ID = projectId;
 process.env.ZAMAR_INITIAL_PASSWORD = initialPassword;
+process.env.CRON_SECRET = 'demo-only-retention-secret';
 
 function sdk(name) {
   const app = initializeApp({ projectId, apiKey: 'demo-api-key' }, name);
@@ -36,11 +43,11 @@ function sdk(name) {
   return { app, auth, db };
 }
 
-async function request(handler, method, body, token) {
+async function request(handler, method, body, token, query = {}) {
   const headers = { 'content-type': 'application/json', ...(token ? { authorization: 'Bearer ' + token } : {}) };
   let status;
   const response = { setHeader() {}, status(code) { status = code; return response; }, json(result) { return { status, result }; } };
-  return handler({ method, body, headers, query: {} }, response);
+  return handler({ method, body, headers, query }, response);
 }
 
 const seed = () => execFileSync(process.execPath, ['scripts/seed-data.js', '--apply'], { encoding: 'utf8' });
@@ -54,8 +61,10 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     const response = await fetch(endpoint, { method: 'DELETE' });
     assert.equal(response.ok, true, 'Reset failed for the local demo project');
   }
-  assert.match(seed(), /Imported 52 weeks; skipped 0/);
-  assert.match(seed(), /Imported 0 weeks; skipped 52/);
+  const seedWeeks = JSON.parse(readFileSync('src/data/Data.json', 'utf8')).weeks;
+  const retainedSeed = seedWeeks.filter(({ sunday }) => sunday >= weekRetentionCutoff());
+  assert.match(seed(), new RegExp('Imported ' + retainedSeed.length + ' weeks; skipped 0'));
+  assert.match(seed(), new RegExp('Imported 0 weeks; skipped ' + retainedSeed.length));
   execFileSync(process.execPath, ['scripts/create-admin.js', adminId, '관리자'], {
     env: { ...process.env, ZAMAR_ADMIN_PASSWORD: adminPassword }, encoding: 'utf8',
   });
@@ -65,8 +74,16 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
   const models = getFirebaseAdmin();
   const changedPassword = 'member-changed-password';
   const loginId = 'choir.member';
-  const weekDate = '2026-01-04';
-  const newSunday = '2027-01-03';
+  const future = Date.now() + 2 * 365 * 24 * 60 * 60 * 1000;
+  const weekDate = retainedSeed[0]?.sunday ?? upcomingSunday(new Date(future));
+  const newSunday = upcomingSunday(new Date(future + 7 * 24 * 60 * 60 * 1000));
+  if (retainedSeed.length === 0) {
+    const week = models.db.doc('weeks/' + weekDate);
+    await week.set({ sunday: weekDate, positionCount: 11, positionsRevision: 0, songsRevision: 0 });
+    for (const i of Array.from({length:11}, (_, index) => index)) {
+      await week.collection('positions').doc('p' + i).set({ role: 'Role ' + i, assignees: [], order: i });
+    }
+  }
 
   try {
     const docFor = (client, ...path) => doc(client.db, ...path);
@@ -113,8 +130,44 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     }
     await positionBatch.commit();
     assert.equal((await getDocsFromServer(collection(member.db, 'weeks', newSunday, 'positions'))).size, 11);
-    assert.match(seed(), /Imported 0 weeks; skipped 52/);
+    assert.match(seed(), new RegExp('Imported 0 weeks; skipped ' + retainedSeed.length));
     assert.equal((await getDocFromServer(docFor(member, 'weeks', weekDate, 'songs', 'first'))).exists(), true);
+
+    assert.equal((await request(board, 'GET')).status, 401);
+    assert.equal((await request(board, 'POST', { type: 'post', text: '  ' }, token)).status, 400);
+    const created = await request(board, 'POST', { type: 'post', text: '익명 본문', author: '테스트' }, token);
+    assert.equal(created.status, 200);
+    const post = created.result.post;
+    const postRef = models.db.doc('boardPosts/' + post.id);
+    assert.deepEqual(Object.keys((await postRef.get()).data()).sort(), ['commentCount', 'createdAt', 'expiresAt', 'text']);
+    await assert.rejects(getDocFromServer(docFor(member, 'boardPosts', post.id)), { code: 'permission-denied' });
+    const replied = await request(board, 'POST', { type: 'comment', postId: post.id, text: '익명 댓글', uid: user.uid }, adminToken);
+    assert.equal(replied.status, 200);
+    assert.deepEqual(Object.keys((await postRef.collection('comments').doc(replied.result.comment.id).get()).data()).sort(), ['createdAt', 'text']);
+    assert.equal((await request(board, 'GET', null, token, { postId: post.id })).result.comments[0].id, replied.result.comment.id);
+
+    const expiredPost = models.db.collection('boardPosts').doc();
+    await expiredPost.set({ text: '만료됨', createdAt: Timestamp.fromMillis(0), expiresAt: Timestamp.fromMillis(1), commentCount: 1 });
+    const expiredComment = await expiredPost.collection('comments').add({ text: '만료 댓글', createdAt: Timestamp.fromMillis(0) });
+    const expiredWeek = models.db.doc('weeks/2020-01-05');
+    await expiredWeek.set({ sunday: '2020-01-05', positionCount: 1, positionsRevision: 0, songsRevision: 0 });
+    const expiredPosition = await expiredWeek.collection('positions').add({ role: '보컬', assignees: [], order: 0 });
+    const expiredSong = await expiredWeek.collection('songs').add(song);
+
+    const listed = await request(board, 'GET', null, token);
+    assert.deepEqual(listed.result.posts.map(({ id, commentCount }) => [id, commentCount]), [[post.id, 1]]);
+    assert.equal((await request(board, 'GET', null, token, { postId: expiredPost.id })).status, 404);
+    assert.equal((await request(board, 'POST', { type: 'comment', postId: expiredPost.id, text: '만료됨' }, token)).status, 404);
+    assert.equal((await request(retention, 'GET', null, adminToken)).status, 401);
+    assert.equal((await expiredWeek.get()).exists, true);
+    const cleanup = await request(retention, 'GET', null, process.env.CRON_SECRET);
+    assert.deepEqual(cleanup, { status: 200, result: { removed: { weeks: 1, posts: 1 } } });
+    for (const deleted of [expiredWeek, expiredPosition, expiredSong, expiredPost, expiredComment]) {
+      assert.equal((await deleted.get()).exists, false);
+    }
+    assert.equal((await postRef.get()).exists, true);
+    assert.equal((await models.db.doc('weeks/' + weekDate).get()).exists, true);
+    assert.deepEqual((await request(retention, 'GET', null, process.env.CRON_SECRET)).result.removed, { weeks: 0, posts: 0 });
 
     await reauthenticateWithCredential(user, EmailAuthProvider.credential(accountEmail(loginId), initialPassword));
     await updatePassword(user, changedPassword);
@@ -123,6 +176,7 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, adminToken)).status, 200);
     assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, adminToken)).status, 200);
     await assert.rejects(getDocFromServer(docFor(member, 'weeks', weekDate)), { code: 'permission-denied' });
+    assert.equal((await request(board, 'GET', null, token)).status, 401);
     await assert.rejects(models.auth.getUser(account.uid), { code: 'auth/user-not-found' });
   } finally {
     await Promise.all([terminate(admin.db), terminate(member.db)]);
