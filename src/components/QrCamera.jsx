@@ -22,7 +22,7 @@ export default function QrCamera({ onClose, onResult }) {
   }, [onResult]);
 
   return (
-    <Modal title="QR 코드 촬영" className="qrDialog" onClose={onClose}>
+    <Modal title="QR 코드 촬영" className="qrDialog" showCloseButton={false} onClose={onClose}>
       <div className="qrViewfinder">
         <video ref={video} autoPlay muted playsInline aria-label="QR 코드 인식용 카메라 미리보기" />
         {!error && <div className="qrGuide" aria-hidden="true" />}
