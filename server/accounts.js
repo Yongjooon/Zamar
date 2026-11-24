@@ -9,7 +9,7 @@ export async function listAccounts(db, after) {
   return { accounts, next: snapshot.size > 50 ? accounts.at(-1).loginId : null };
 }
 
-export async function provisionAccount({ auth, db }, { loginId: inputId, name: inputName, role, password }) {
+export async function provisionAccount({ auth, db }, { loginId: inputId, name: inputName, password }) {
   const loginId = normalizeLoginId(inputId);
   const name = typeof inputName === 'string' ? inputName.trim() : '';
   if (!LOGIN_ID_PATTERN.test(loginId) || name.length < 1 || name.length > 60) {
@@ -27,7 +27,7 @@ export async function provisionAccount({ auth, db }, { loginId: inputId, name: i
     throw error;
   }
 
-  const profile = { loginId, name, role, status: 'active' };
+  const profile = { loginId, name, role: 'user', status: 'active' };
   const ref = db.collection('users').doc(user.uid);
   try {
     await ref.create(profile);
@@ -40,6 +40,35 @@ export async function provisionAccount({ auth, db }, { loginId: inputId, name: i
   }
 
   return { account: { ...profile, uid: user.uid } };
+}
+
+export async function changeAccountRole({ db }, uid, role, adminUid) {
+  if (typeof uid !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(uid)) {
+    throw new HttpError(400, '유효한 계정을 선택해 주세요.');
+  }
+  if (role !== 'admin' && role !== 'user') {
+    throw new HttpError(400, '변경할 권한이 올바르지 않습니다.');
+  }
+
+  const profileRef = db.collection('users').doc(uid);
+  return db.runTransaction(async (transaction) => {
+    // Recheck the caller in the same transaction as the role change.
+    const admin = (await transaction.get(db.collection('users').doc(adminUid))).data();
+    if (admin?.role !== 'admin' || admin.status !== 'active') {
+      throw new HttpError(403, '관리자 권한이 필요합니다.');
+    }
+    const profile = (await transaction.get(profileRef)).data();
+    if (!profile) throw new HttpError(404, '계정을 찾을 수 없습니다.');
+    if (profile.status !== 'active') throw new HttpError(409, '삭제 중인 계정의 권한은 변경할 수 없습니다.');
+    if (profile.role === 'admin' && role === 'user') {
+      const admins = await transaction.get(db.collection('users').where('role', '==', 'admin'));
+      if (!admins.docs.some((entry) => entry.id !== uid && entry.data().status === 'active')) {
+        throw new HttpError(409, '마지막 팀장의 관리자 등록은 해제할 수 없습니다. 다른 팀원을 먼저 관리자로 등록해 주세요.');
+      }
+    }
+    transaction.update(profileRef, { role });
+    return { account: { ...profile, uid, role } };
+  });
 }
 
 export async function deleteAccount({ auth, db }, uid, adminUid) {
