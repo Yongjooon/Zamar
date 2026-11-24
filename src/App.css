@@ -455,6 +455,21 @@
 .escapeMessage { display: grid; gap: 22px; }
 .escapeMessage h1 { font-size: clamp(32px, 7vw, 72px); font-weight: 760; letter-spacing: -.04em; word-break: keep-all; }
 .escapeMessage p { color: #adbfaf; font-size: clamp(14px, 2.5vw, 18px); letter-spacing: .22em; }
+.escapeStart { justify-self: center; display: inline-flex; align-items: center; justify-content: center; gap: 20px; min-height: 50px; padding: 12px 28px; border: 1px solid #526e5a; border-radius: 999px; color: #c9e8d3; font-size: 18px; letter-spacing: .14em; transition: background-color 150ms, border-color 150ms; }
+.escapeStart:hover { background: #253e2e; border-color: #8bcea3; }
+.escapePlayPage { padding: 100px max(20px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); }
+.escapeGame { display: grid; justify-items: center; gap: 26px; width: min(100%, 700px); }
+.escapeCode { display: flex; justify-content: center; gap: clamp(12px, 4vw, 20px); }
+.escapeCode > span { display: grid; place-items: center; width: clamp(48px, 13vw, 68px); height: clamp(60px, 16vw, 80px); border: 1px solid #526e5a; border-radius: 14px; background: #19251e; color: #d7eddf; font: 500 clamp(30px, 7vw, 42px)/1 Georgia, serif; box-shadow: 0 4px 20px rgba(0, 0, 0, .15); }
+.escapePath { display: block; width: 100%; height: auto; border: 1px solid #32483a; border-radius: 20px; }
+.escapeCapture { display: inline-flex; justify-content: center; align-items: center; gap: 10px; min-height: 54px; width: min(100%, 260px); padding: 14px 24px; border: 1px solid #8bcea3; border-radius: 14px; background: #a4dfb8; color: #101814; font-size: 16px; font-weight: 750; transition: background-color 150ms; }
+.escapeCapture:hover { background: #c9eed6; }
+.escapeScanResult { display: grid; gap: 10px; width: 100%; padding: 18px; border: 1px solid #32483a; border-radius: 14px; background: #19251e; color: #c9e8d3; text-align: left; }
+.escapeScanResult p { white-space: pre-wrap; overflow-wrap: anywhere; color: #ecf4ed; font-size: 14px; line-height: 1.6; max-height: 200px; overflow: auto; }
+.qrDialog { max-height: 90dvh; }
+.qrViewfinder { position: relative; aspect-ratio: 1; width: 100%; overflow: hidden; border-radius: 14px; background: #080d0a; }
+.qrViewfinder video { display: block; width: 100%; height: 100%; object-fit: contain; }
+.qrGuide { position: absolute; inset: 18%; border: 2px solid #a4dfb8; border-radius: 14px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .25); pointer-events: none; }
 
 .toast {
   position: fixed;

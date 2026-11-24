@@ -10,6 +10,7 @@ import WeekToolbar from './components/WeekToolbar.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import BoardPage from './pages/BoardPage.jsx';
 import EscapePage from './pages/EscapePage.jsx';
+import EscapePlayPage from './pages/EscapePlayPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import PasswordPage from './pages/PasswordPage.jsx';
 import PositionsPage from './pages/PositionsPage.jsx';
@@ -129,6 +130,7 @@ function TeamApp({ profile, requestedRoute, theme, onToggleTheme }) {
   const weeklyPage = route === 'positions' || route === 'setlist';
   const needsTeam = weeklyPage || route === 'admin';
   if (route === 'escape') return <EscapePage />;
+  if (route === 'escapePlay') return <EscapePlayPage />;
 
   const { title, description } = pages[route];
 
@@ -173,7 +175,7 @@ function TeamApp({ profile, requestedRoute, theme, onToggleTheme }) {
 
 export default function App() {
   const requestedRoute = useHashRoute();
-  const { theme, toggleTheme } = useTheme(requestedRoute === 'escape');
+  const { theme, toggleTheme } = useTheme(['escape', 'escapePlay'].includes(requestedRoute));
   if (!firebaseReady) return <StatusPage message="Firebase 연결 설정이 필요합니다. 개발자 또는 관리자에게 문의해 주세요." />;
   return <AuthenticatedApp requestedRoute={requestedRoute} theme={theme} onToggleTheme={toggleTheme} />;
 }

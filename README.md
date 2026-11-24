@@ -57,7 +57,8 @@ npx firebase-tools emulators:exec --project demo-zamar --only auth,firestore "np
 
 ## 보안 설정과 운영 점검
 
-- `vercel.json`의 CSP는 앱 자체와 Firebase Authentication·Firestore, YouTube 플레이어에 필요한 출처만 허용합니다. 인라인 스크립트와 `eval`은 허용하지 않습니다. YouTube SDK의 요소 크기 설정을 위해 인라인 스타일은 허용합니다. 외부 사이트의 iframe 삽입, MIME 유형 추측, 카메라·마이크·위치·결제 기능도 차단합니다. `npm run preview`에도 같은 헤더가 적용됩니다. 개발 서버는 HMR을 위해 이 정책을 적용하지 않습니다.
+- `vercel.json`의 CSP는 앱 자체와 Firebase Authentication·Firestore, YouTube 플레이어에 필요한 출처만 허용합니다. 인라인 스크립트와 `eval`은 허용하지 않습니다. YouTube SDK의 요소 크기 설정을 위해 인라인 스타일은 허용합니다. 외부 사이트의 iframe 삽입, MIME 유형 추측, 마이크·위치·결제 기능도 차단합니다. 방탈출 QR 촬영을 위해 카메라는 `camera=(self)`로 앱 자체에서만 허용하며, 촬영 버튼을 누른 뒤 브라우저 권한을 요청합니다. `npm run preview`에도 같은 헤더가 적용됩니다. 개발 서버는 HMR을 위해 이 정책을 적용하지 않습니다.
+- 방탈출의 `start`를 누르면 `#/escape/play`로 이동합니다. 네 자리 숫자는 아직 `?`로 표시하며, QR 내용에 따른 숫자 공개 규칙은 구현하지 않았습니다. QR 인식은 [jsQR](https://github.com/cozmo/jsQR)로 브라우저 안에서 처리하고 결과를 텍스트로 표시합니다. 인식·닫기·페이지 이동·앱을 백그라운드로 전환할 때 카메라를 종료하며, 권한 요청 도중 닫아도 나중에 연결된 스트림을 바로 종료합니다. 실제 카메라는 HTTPS 배포 주소 또는 localhost에서 검증합니다.
 - 이메일·비밀번호 로그인만 사용하므로 [Firebase 공식 안내](https://firebase.google.com/docs/auth/web/custom-dependencies)에 따라 `initializeAuth`에서 기존 로그인 저장 방식은 유지하고 팝업·리디렉션 의존성은 제외합니다. 모바일·Safari에서도 로그인 팝업용 외부 스크립트와 iframe을 미리 불러오지 않으며, CSP의 iframe 출처는 YouTube만 허용합니다.
 - Firebase SDK가 오래된 gRPC 버전을 요구하므로 `overrides`로 `@firebase/firestore`의 `@grpc/grpc-js`를 보안 패치가 포함된 `^1.14.7`로 올립니다. [gRPC 보안 공지](https://github.com/advisories/GHSA-m9gg-hp2v-232j)의 인증서 관련 High 취약점은 1.13.6·1.14.5에서 수정됐습니다. 현재 앱에서 공지의 서버 인증 구성 사용은 확인되지 않았습니다. Firebase가 해당 의존성을 갱신하면 override를 재검토합니다. 의존성 변경 후 `npm audit`와 Firebase 에뮬레이터 통합 검사를 실행합니다.
 - 운영 Firestore 규칙은 [Firebase Console](https://console.firebase.google.com/project/zamar-c9893/firestore)의 규칙 탭에서 로컬 `firestore.rules`와 비교합니다. 사용자 문서의 직접 쓰기 금지, 활성 계정만 팀 정보 조회, 팀장만 편집, 게시판 직접 접근 차단을 확인합니다. 로컬 파일이나 에뮬레이터 검사만으로 운영 배포 상태를 확인할 수는 없습니다.

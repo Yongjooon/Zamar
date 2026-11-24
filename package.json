@@ -8,13 +8,14 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test test/unit.test.js",
+    "test": "node --test test/*.test.js",
     "test:firebase": "node --test test/firebase.integration.js",
     "seed:data": "node --env-file-if-exists=.env.local scripts/seed-data.js"
   },
   "dependencies": {
     "firebase": "^13.4.0",
     "firebase-admin": "^14.5.1",
+    "jsqr": "^1.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

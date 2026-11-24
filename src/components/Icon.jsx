@@ -29,6 +29,7 @@ const paths = {
   refresh: 'M19.5 11a7.5 7.5 0 0 0-13-5L4 8m0-4v4h4m-3.5 5a7.5 7.5 0 0 0 13 5L20 16m0 4v-4h-4',
   clock: 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-5v5l3 2',
   play: 'M8 5.5v13l11-6.5z',
+  camera: 'M8 6l2-3h4l2 3h4v14H4V6zm8 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
   external: 'M13 5h6v6m0-6-8 8m8 1v5H5V5h5',
 };
 

@@ -7,6 +7,7 @@ const routes = {
   password: '#/password',
   admin: '#/admin',
   escape: '#/escape',
+  escapePlay: '#/escape/play',
 };
 
 function currentRoute() {
