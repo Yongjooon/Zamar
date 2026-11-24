@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "node --test test/*.test.js",
     "test:firebase": "node --test test/firebase.integration.js",
+    "generate:escape-qr": "node scripts/generate-escape-qr.js",
     "seed:data": "node --env-file-if-exists=.env.local scripts/seed-data.js"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "qrcode": "^1.5.4",
     "vite": "^7.2.4"
   }
 }

@@ -14,10 +14,12 @@ import {
 } from 'firebase/firestore';
 import accounts from '../api/accounts.js';
 import board from '../api/board.js';
+import escape from '../api/escape.js';
 import retention from '../api/retention.js';
 import { provisionAccount } from '../server/accounts.js';
 import { getFirebaseAdmin } from '../server/firebase-admin.js';
 import { accountEmail } from '../shared/identity.js';
+import { ESCAPE_CLUES } from '../shared/escape.js';
 import { weekRetentionCutoff } from '../shared/retention.js';
 import { upcomingSunday } from '../src/lib/date.js';
 
@@ -106,6 +108,37 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     assert.equal((await request(accounts, 'POST', { loginId, name: '중복' }, adminToken)).status, 409);
     const user = (await signInWithEmailAndPassword(member.auth, accountEmail(loginId), initialPassword)).user;
     const token = await user.getIdToken();
+    assert.equal((await request(escape, 'GET')).status, 401);
+    assert.equal((await request(escape, 'POST', { action: 'scan', code: '6371', round: 0 }, token)).status, 400);
+    assert.equal((await request(escape, 'POST', { action: 'reset', round: 0 }, token)).status, 409);
+    const scan = (index, round = 0) => request(escape, 'POST', { action: 'scan', code: ESCAPE_CLUES[index].token, round, uid: adminUser.uid }, token);
+    assert.deepEqual((await scan(1)).result.progress.digits, ['?', '3', '?', '?']);
+    assert.equal((await scan(1)).result.alreadyFound, true);
+    assert.equal((await request(escape, 'GET', null, adminToken, { uid: user.uid })).result.progress.found, 0);
+    assert.equal((await request(escape, 'GET', null, token)).result.progress.found, 1);
+    // A separate signed-in session sees the saved state; direct SDK access stays denied.
+    const returning = sdk('returning-escape-player');
+    try {
+      const returningUser = (await signInWithEmailAndPassword(returning.auth, accountEmail(loginId), initialPassword)).user;
+      assert.equal((await request(escape, 'GET', null, await returningUser.getIdToken())).result.progress.found, 1);
+    } finally {
+      await terminate(returning.db);
+      await deleteApp(returning.app);
+    }
+    await assert.rejects(getDocFromServer(docFor(member, 'escapeProgress', user.uid)), { code: 'permission-denied' });
+    await assert.rejects(setDoc(docFor(member, 'escapeProgress', user.uid), { opened: ESCAPE_CLUES.map(({ id }) => id) }), { code: 'permission-denied' });
+    await Promise.all([scan(0), scan(3)]);
+    assert.equal((await request(escape, 'GET', null, token)).result.progress.found, 3);
+    const finished = (await scan(2)).result.progress;
+    assert.equal(finished.complete, true);
+    assert.equal(finished.digits.join(''), '6371');
+    assert.equal((await request(escape, 'GET', null, token)).result.progress.complete, true);
+    const reset = await request(escape, 'POST', { action: 'reset', round: 0 }, token);
+    assert.equal(reset.result.progress.round, 1);
+    assert.deepEqual(reset.result.progress.digits, ['?', '?', '?', '?']);
+    assert.equal((await scan(0)).status, 409);
+    assert.equal((await request(escape, 'POST', { action: 'reset', round: 0 }, token)).status, 409);
+    assert.equal((await scan(0, 1)).status, 200);
     assert.equal((await request(accounts, 'GET', null, token)).status, 403);
     assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, token)).status, 403);
     assert.equal((await getDocFromServer(docFor(member, 'users', account.uid))).data().role, 'user');
@@ -245,6 +278,7 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     await signInWithEmailAndPassword(member.auth, accountEmail(loginId), changedPassword);
     assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, adminToken)).status, 200);
     assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, adminToken)).status, 200);
+    assert.equal((await models.db.collection('escapeProgress').doc(account.uid).get()).exists, false);
     await assert.rejects(getDocFromServer(docFor(member, 'weeks', weekDate)), { code: 'permission-denied' });
     assert.equal((await request(board, 'GET', null, token)).status, 401);
     await assert.rejects(models.auth.getUser(account.uid), { code: 'auth/user-not-found' });

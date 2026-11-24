@@ -93,5 +93,6 @@ export async function deleteAccount({ auth, db }, uid, adminUid) {
   } catch (error) {
     if (error.code !== 'auth/user-not-found') throw error;
   }
+  await db.collection('escapeProgress').doc(uid).delete();
   await profileRef.delete();
 }

@@ -461,6 +461,11 @@
 .escapeGame { display: grid; justify-items: center; gap: 26px; width: min(100%, 700px); }
 .escapeCode { display: flex; justify-content: center; gap: clamp(12px, 4vw, 20px); }
 .escapeCode > span { display: grid; place-items: center; width: clamp(48px, 13vw, 68px); height: clamp(60px, 16vw, 80px); border: 1px solid #526e5a; border-radius: 14px; background: #19251e; color: #d7eddf; font: 500 clamp(30px, 7vw, 42px)/1 Georgia, serif; box-shadow: 0 4px 20px rgba(0, 0, 0, .15); }
+.escapeCode > .isRevealed { border-color: #a4dfb8; color: #c9eed6; background: #253e2e; }
+.escapeProgress, .escapeNotice { color: #adbfaf; font-size: 14px; line-height: 1.6; }
+.escapeCompleteMessage { display: grid; justify-items: center; gap: 18px; padding: 14px 0; text-align: center; line-height: 1.6; }
+.escapeCompleteMessage > svg { width: 50px; height: 50px; padding: 10px; border-radius: 50%; color: #a4dfb8; background: #253e2e; }
+.escapeCompleteMessage > strong { font-size: 34px; letter-spacing: .25em; padding-left: .25em; color: #a4dfb8; }
 .escapePath { display: block; width: 100%; height: auto; border: 1px solid #32483a; border-radius: 20px; }
 .escapeCapture { display: inline-flex; justify-content: center; align-items: center; gap: 10px; min-height: 54px; width: min(100%, 260px); padding: 14px 24px; border: 1px solid #8bcea3; border-radius: 14px; background: #a4dfb8; color: #101814; font-size: 16px; font-weight: 750; transition: background-color 150ms; }
 .escapeCapture:hover { background: #c9eed6; }
