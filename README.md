@@ -54,3 +54,13 @@ npx firebase-tools emulators:exec --project demo-zamar --only auth,firestore "np
 ```
 
 `npm run dev`로 브라우저 UI를 개발할 수 있습니다. 계정 생성·삭제와 권한 변경 API까지 실행하려면 Vercel 프로젝트를 연결한 다음 `npx vercel dev`를 사용합니다.
+
+## 보안 설정과 운영 점검
+
+- `vercel.json`의 CSP는 앱 자체와 Firebase Authentication·Firestore, YouTube 플레이어에 필요한 출처만 허용합니다. 인라인 스크립트와 `eval`은 허용하지 않습니다. YouTube SDK의 요소 크기 설정을 위해 인라인 스타일은 허용합니다. 외부 사이트의 iframe 삽입, MIME 유형 추측, 카메라·마이크·위치·결제 기능도 차단합니다. `npm run preview`에도 같은 헤더가 적용됩니다. 개발 서버는 HMR을 위해 이 정책을 적용하지 않습니다.
+- 이메일·비밀번호 로그인만 사용하므로 [Firebase 공식 안내](https://firebase.google.com/docs/auth/web/custom-dependencies)에 따라 `initializeAuth`에서 기존 로그인 저장 방식은 유지하고 팝업·리디렉션 의존성은 제외합니다. 모바일·Safari에서도 로그인 팝업용 외부 스크립트와 iframe을 미리 불러오지 않으며, CSP의 iframe 출처는 YouTube만 허용합니다.
+- Firebase SDK가 오래된 gRPC 버전을 요구하므로 `overrides`로 `@firebase/firestore`의 `@grpc/grpc-js`를 보안 패치가 포함된 `^1.14.7`로 올립니다. [gRPC 보안 공지](https://github.com/advisories/GHSA-m9gg-hp2v-232j)의 인증서 관련 High 취약점은 1.13.6·1.14.5에서 수정됐습니다. 현재 앱에서 공지의 서버 인증 구성 사용은 확인되지 않았습니다. Firebase가 해당 의존성을 갱신하면 override를 재검토합니다. 의존성 변경 후 `npm audit`와 Firebase 에뮬레이터 통합 검사를 실행합니다.
+- 운영 Firestore 규칙은 [Firebase Console](https://console.firebase.google.com/project/zamar-c9893/firestore)의 규칙 탭에서 로컬 `firestore.rules`와 비교합니다. 사용자 문서의 직접 쓰기 금지, 활성 계정만 팀 정보 조회, 팀장만 편집, 게시판 직접 접근 차단을 확인합니다. 로컬 파일이나 에뮬레이터 검사만으로 운영 배포 상태를 확인할 수는 없습니다.
+- [Google Cloud 사용자 인증 정보](https://console.cloud.google.com/apis/credentials?project=zamar-c9893)에서 실제 웹 앱의 Browser key에 API 제한을 적용했는지 확인합니다. 앱에서 사용하는 Authentication 및 Firestore 관련 API만 허용하고, `Generative Language API` 등 별도 유료 API는 포함하지 않습니다. 키 값 자체를 로그나 점검 결과에 복사하지 않습니다.
+- [App Check](https://console.firebase.google.com/project/zamar-c9893/appcheck)에서 웹 앱 제공자 등록 여부와 Firestore 강제 적용 여부를 확인합니다. 현재 코드에는 App Check 초기화·토큰 전달·서버 검증이 없습니다. 콘솔 강제 적용에 앞서 클라이언트를 연동하고 요청 지표를 확인해야 합니다.
+- 현재 코드에는 서버 측 요청 횟수 제한이 없습니다. Vercel 프로젝트의 Firewall에서 별도 Rate Limit 규칙을 확인해야 합니다. Firebase Auth 자체 제한이나 플랫폼 사용량 한도는 앱별 도배 방지 제한을 대신하지 않습니다.

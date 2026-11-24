@@ -1,5 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence, browserSessionPersistence, connectAuthEmulator,
+  indexedDBLocalPersistence, initializeAuth,
+} from 'firebase/auth';
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
 
 const options = {
@@ -11,7 +14,10 @@ const options = {
 
 export const firebaseReady = Object.values(options).every(Boolean);
 const app = firebaseReady ? initializeApp(options) : null;
-export const auth = app ? getAuth(app) : null;
+// Password sign-in needs persistence, but no popup/redirect scripts or iframes.
+export const auth = app ? initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+}) : null;
 export const db = app ? getFirestore(app) : null;
 
 if (app && import.meta.env.DEV && import.meta.env.VITE_FIREBASE_EMULATORS === 'true') {
