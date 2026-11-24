@@ -39,7 +39,7 @@
   color: var(--ink);
 }
 
-.workspaceRail > .brand { padding-inline: 8px; }
+.workspaceRail > .brand { padding-inline: 8px; touch-action: manipulation; user-select: none; }
 
 .brandMark {
   height: 42px;
@@ -49,7 +49,7 @@
   place-content: center;
   flex: none;
   border-radius: 13px;
-  background: var(--accent-dark);
+  background: var(--brand-background);
   color: white;
   font: 700 25px/1 Georgia, serif;
 }
@@ -175,9 +175,9 @@
   transition: background-color 150ms, color 150ms, border-color 150ms;
 }
 
-.primaryBtn { background: var(--accent); color: white; }
+.primaryBtn { background: var(--action-background); color: white; }
 .ghostBtn, .iconBtn { background: var(--surface); color: var(--ink); border-color: var(--line); }
-.dangerBtn { background: var(--danger); color: white; }
+.dangerBtn { background: #9b263f; color: white; }
 .dangerText { color: var(--danger); }
 .textBtn { color: var(--accent); padding-inline: 5px; text-decoration: underline; text-underline-offset: 3px; }
 .iconBtn { width: var(--tap); flex: none; padding: 0; }
@@ -186,7 +186,7 @@
 @media (hover: hover) {
   .navLink:not([aria-current]):hover, .profileButton:hover,
   .ghostBtn:enabled:hover, .iconBtn:enabled:hover, .weekOption:hover { background: var(--accent-soft); }
-  .primaryBtn:enabled:hover { background: var(--accent-dark); }
+  .primaryBtn:enabled:hover { background: var(--brand-background); }
   .dangerBtn:enabled:hover { background: #7d1930; }
   .textBtn:hover { color: var(--accent-dark); }
 }
@@ -335,7 +335,7 @@
   aspect-ratio: 16 / 9;
   border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
   overflow: hidden;
-  background: var(--accent-dark);
+  background: var(--brand-background);
 }
 .videoPlaceholder, .videoHost { position: absolute; inset: 0; }
 .videoPlaceholder { display: grid; place-items: center; color: var(--inverse-muted); }
@@ -432,6 +432,30 @@
 .accountFooter { border-top: 1px solid var(--line); padding-top: 10px; }
 .accountFooter .ghostBtn { width: 100%; }
 
+.themeSetting { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 12px; font-size: 15px; font-weight: 680; }
+.themeSwitch { display: grid; place-items: center; min-width: var(--tap); min-height: var(--tap); padding: 0; border: 0; border-radius: 12px; background: transparent; }
+.themeSwitchTrack { display: flex; align-items: center; width: 44px; height: 26px; padding: 3px; border-radius: 20px; background: var(--field-border); transition: background-color 150ms; }
+.themeSwitchTrack > span { width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); transition: transform 150ms; }
+.themeSwitch[aria-checked="true"] .themeSwitchTrack { background: var(--action-background); }
+.themeSwitch[aria-checked="true"] .themeSwitchTrack > span { transform: translateX(18px); }
+
+.escapePage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 100px 24px;
+  background: radial-gradient(ellipse at 50% 45%, #20372a 0%, #101814 65%);
+  color: #ecf4ed;
+  color-scheme: dark;
+  text-align: center;
+}
+.escapeBack { position: absolute; top: max(24px, env(safe-area-inset-top)); left: max(24px, env(safe-area-inset-left)); min-height: var(--tap); display: inline-flex; align-items: center; color: #adbfaf; font-size: 14px; }
+.escapeBack:hover { color: #ecf4ed; }
+.escapeMessage { display: grid; gap: 22px; }
+.escapeMessage h1 { font-size: clamp(32px, 7vw, 72px); font-weight: 760; letter-spacing: -.04em; word-break: keep-all; }
+.escapeMessage p { color: #adbfaf; font-size: clamp(14px, 2.5vw, 18px); letter-spacing: .22em; }
+
 .toast {
   position: fixed;
   z-index: 20;
@@ -442,7 +466,7 @@
   transform: translateX(-50%);
   padding: 11px 16px;
   border-radius: 12px;
-  background: var(--accent-dark);
+  background: var(--brand-background);
   color: white;
   font-size: 14px;
   box-shadow: 0 4px 16px rgba(17, 38, 27, .18);
@@ -476,9 +500,9 @@
   min-width: 0;
   padding: 37px;
   color: white;
-  background: var(--accent-dark);
+  background: var(--brand-background);
 }
-.loginBrand .brandMark { background: white; color: var(--accent-dark); margin-bottom: 8px; }
+.loginBrand .brandMark { background: white; color: var(--brand-background); margin-bottom: 8px; }
 .loginBrand .brandMark span { color: var(--focus); }
 .loginBrand > strong { font: 700 clamp(47px, 7vw, 79px)/.95 Georgia, serif; letter-spacing: -.065em; }
 .loginBrand p { font-size: 16px; color: var(--inverse-muted); }

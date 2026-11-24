@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Icon from './Icon.jsx';
 import Modal from './Modal.jsx';
 
@@ -18,8 +18,9 @@ function NavigationLinks({ route, links, onNavigate }) {
   ));
 }
 
-export default function AppShell({ teamName, profile, route, onNavigate, onLogout, children }) {
+export default function AppShell({ teamName, profile, route, theme, onToggleTheme, onNavigate, onLogout, children }) {
   const [accountOpen, setAccountOpen] = useState(false);
+  const brandClicks = useRef(0);
   const accountLinks = [
     { route: 'password', href: '#/password', title: '비밀번호 변경', icon: 'lock' },
     ...(profile.role === 'admin' ? [
@@ -32,6 +33,17 @@ export default function AppShell({ teamName, profile, route, onNavigate, onLogou
     onNavigate();
   }
 
+  function clickBrand(event) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    brandClicks.current += 1;
+    if (brandClicks.current === 10) {
+      event.preventDefault();
+      brandClicks.current = 0;
+      window.location.hash = '#/escape';
+    }
+    navigate();
+  }
+
   return (
     <div className="app">
       <a className="skipLink" href="#main-content" onClick={(event) => {
@@ -39,7 +51,7 @@ export default function AppShell({ teamName, profile, route, onNavigate, onLogou
         document.getElementById('main-content')?.focus();
       }}>본문으로 이동</a>
       <header className="workspaceRail">
-        <a className="brand" href="#/" aria-label={teamName + ' 홈'} onClick={navigate}>
+        <a className="brand" href="#/" aria-label={teamName + ' 홈'} onClick={clickBrand}>
           <span className="brandMark" aria-hidden="true">Z<span>.</span></span>
           <span className="brandText">{teamName}</span>
         </a>
@@ -67,6 +79,13 @@ export default function AppShell({ teamName, profile, route, onNavigate, onLogou
           <div className="accountSummary">
             <span className="profileIcon"><Icon name="user" /></span>
             <strong>{profile.name}</strong>
+          </div>
+          <div className="themeSetting">
+            <span id="dark-mode-label">다크모드</span>
+            <button className="themeSwitch" type="button" role="switch" aria-checked={theme === 'dark'}
+              aria-labelledby="dark-mode-label" onClick={onToggleTheme}>
+              <span className="themeSwitchTrack" aria-hidden="true"><span /></span>
+            </button>
           </div>
           <nav className="accountLinks" aria-label="계정 메뉴">
             <NavigationLinks route={route} links={accountLinks} onNavigate={navigate} />

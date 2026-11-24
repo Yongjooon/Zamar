@@ -9,6 +9,7 @@ import WeekEditor from './components/WeekEditor.jsx';
 import WeekToolbar from './components/WeekToolbar.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import BoardPage from './pages/BoardPage.jsx';
+import EscapePage from './pages/EscapePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import PasswordPage from './pages/PasswordPage.jsx';
 import PositionsPage from './pages/PositionsPage.jsx';
@@ -19,6 +20,7 @@ import { auth, firebaseReady } from './lib/firebase.js';
 import { useSession } from './lib/session.js';
 import { createWeek, useTeam, useWeekEntries } from './lib/storage.js';
 import { useHashRoute } from './lib/useHashRoute.js';
+import { useTheme } from './lib/useTheme.js';
 
 const pages = {
   positions: { title: '포지션 배정', description: '주차별 예배 담당자를 확인하세요.' },
@@ -40,14 +42,15 @@ function StatusPage({ message, canLogout = false }) {
   );
 }
 
-function AuthenticatedApp() {
+function AuthenticatedApp({ requestedRoute, theme, onToggleTheme }) {
   const { identity, account, loading } = useSession();
   if (loading) return <StatusPage message="로그인 상태를 확인하는 중…" />;
   if (!identity) return <LoginPage />;
   if (account?.profile?.status !== 'active') {
     return <StatusPage message={account?.error ?? '사용할 수 있는 계정이 없습니다. 관리자에게 문의해 주세요.'} canLogout />;
   }
-  return <TeamApp key={identity.uid} profile={account.profile} />;
+  return <TeamApp key={identity.uid} profile={account.profile} requestedRoute={requestedRoute}
+    theme={theme} onToggleTheme={onToggleTheme} />;
 }
 
 function NewWeekForm({ initialDate, onCreated, onClose }) {
@@ -81,8 +84,7 @@ function NewWeekForm({ initialDate, onCreated, onClose }) {
   );
 }
 
-function TeamApp({ profile }) {
-  const requestedRoute = useHashRoute();
+function TeamApp({ profile, requestedRoute, theme, onToggleTheme }) {
   const admin = profile.role === 'admin';
   const route = requestedRoute === 'admin' && !admin ? 'positions' : requestedRoute;
   const [now, setNow] = useState(() => new Date());
@@ -126,10 +128,13 @@ function TeamApp({ profile }) {
 
   const weeklyPage = route === 'positions' || route === 'setlist';
   const needsTeam = weeklyPage || route === 'admin';
+  if (route === 'escape') return <EscapePage />;
+
   const { title, description } = pages[route];
 
   return (
     <AppShell teamName={team?.teamName ?? 'Zamar'} profile={profile} route={route}
+      theme={theme} onToggleTheme={onToggleTheme}
       onNavigate={() => setEditor(null)} onLogout={() => signOut(auth)}>
       <header className="pageHeader">
         <h1>{activeEditor === 'new' ? '주차 추가' : activeEditor === 'edit' ? title + ' 편집' : title}</h1>
@@ -167,6 +172,8 @@ function TeamApp({ profile }) {
 }
 
 export default function App() {
+  const requestedRoute = useHashRoute();
+  const { theme, toggleTheme } = useTheme(requestedRoute === 'escape');
   if (!firebaseReady) return <StatusPage message="Firebase 연결 설정이 필요합니다. 개발자 또는 관리자에게 문의해 주세요." />;
-  return <AuthenticatedApp />;
+  return <AuthenticatedApp requestedRoute={requestedRoute} theme={theme} onToggleTheme={toggleTheme} />;
 }

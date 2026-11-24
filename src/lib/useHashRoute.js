@@ -6,6 +6,7 @@ const routes = {
   board: '#/board',
   password: '#/password',
   admin: '#/admin',
+  escape: '#/escape',
 };
 
 function currentRoute() {
