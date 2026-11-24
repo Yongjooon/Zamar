@@ -3,7 +3,11 @@ import { apiRequest } from '../lib/session.js';
 import { saveTeam } from '../lib/storage.js';
 import Modal from '../components/Modal.jsx';
 
-const statusText = { active: '사용 중', deleting: '삭제 중' };
+const accountActions = {
+  delete: { title: '이 계정을 삭제할까요?', description: '계정을 삭제합니다.', label: '삭제하기', success: '계정을 삭제했습니다.' },
+  promote: { title: '관리자로 등록할까요?', description: '팀장으로 변경하고 관리자 권한을 부여합니다.', label: '관리자 등록', success: '관리자로 등록했습니다.' },
+  demote: { title: '관리자 등록을 해제할까요?', description: '팀원으로 변경하고 관리자 권한을 해제합니다.', label: '관리자 등록 해제', success: '관리자 등록을 해제했습니다.' },
+};
 
 function getAccounts(after, signal) {
   return apiRequest(after ? '/api/accounts?after=' + encodeURIComponent(after) : '/api/accounts', {
@@ -20,8 +24,9 @@ export default function AdminPage({ team, onToast }) {
   const [createError, setCreateError] = useState('');
   const [teamError, setTeamError] = useState('');
   const [savingTeam, setSavingTeam] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [deleteError, setDeleteError] = useState('');
+  const [pendingAction, setPendingAction] = useState(null);
+  const [actionError, setActionError] = useState('');
+  const action = pendingAction && accountActions[pendingAction.type];
 
   useEffect(() => {
     const request = new AbortController();
@@ -56,17 +61,29 @@ export default function AdminPage({ team, onToast }) {
     }
   }
 
-  async function remove() {
-    if (busy || !selectedAccount) return;
+  function selectAction(account, type) {
+    setActionError('');
+    setPendingAction({ account, type });
+  }
+
+  async function applyAccountAction() {
+    if (busy || !pendingAction) return;
+    const { account, type } = pendingAction;
     setBusy(true);
-    setDeleteError('');
+    setActionError('');
     try {
-      await apiRequest('/api/accounts', { method: 'DELETE', data: { uid: selectedAccount.uid }, authorized: true });
-      setResult((accounts) => accounts.filter(({ uid }) => uid !== selectedAccount.uid));
-      setSelectedAccount(null);
-      onToast('계정을 삭제했습니다.');
+      const response = await apiRequest('/api/accounts', {
+        method: type === 'delete' ? 'DELETE' : 'PATCH',
+        data: type === 'delete' ? { uid: account.uid } : { uid: account.uid, role: type === 'promote' ? 'admin' : 'user' },
+        authorized: true,
+      });
+      setResult((accounts) => type === 'delete'
+        ? accounts.filter(({ uid }) => uid !== account.uid)
+        : accounts.map((entry) => entry.uid === account.uid ? response.account : entry));
+      setPendingAction(null);
+      onToast(action.success);
     } catch (error) {
-      setDeleteError(error.message);
+      setActionError(error.message);
     } finally {
       setBusy(false);
     }
@@ -112,9 +129,12 @@ export default function AdminPage({ team, onToast }) {
             <div className="row wrapRow" key={account.uid}>
               <div className="entryLabel">
                 <strong>{account.name}</strong>
-                <div className="weekHint">{account.loginId} · {account.role === 'admin' ? '관리자' : statusText[account.status]}</div>
+                <div className="weekHint">{account.loginId} · {account.role === 'admin' ? '팀장' : '팀원'}{account.status === 'deleting' ? ' · 삭제 중' : ''}</div>
               </div>
-              {account.role === 'user' && <button className="ghostBtn dangerText" type="button" disabled={busy || loadingMore} onClick={() => { setDeleteError(''); setSelectedAccount(account); }}>{account.status === 'deleting' ? '삭제 재시도' : '삭제'}</button>}
+              <div className="actionRow">
+                {account.status === 'active' && <button className="ghostBtn" type="button" disabled={busy || loadingMore} onClick={() => selectAction(account, account.role === 'admin' ? 'demote' : 'promote')}>{account.role === 'admin' ? '관리자 등록 해제' : '관리자 등록'}</button>}
+                {account.role === 'user' && <button className="ghostBtn dangerText" type="button" disabled={busy || loadingMore} onClick={() => selectAction(account, 'delete')}>{account.status === 'deleting' ? '삭제 재시도' : '삭제'}</button>}
+              </div>
             </div>
           ))}
           {after && <button className="ghostBtn" type="button" disabled={busy || loadingMore} onClick={more}>더 보기</button>}
@@ -124,6 +144,7 @@ export default function AdminPage({ team, onToast }) {
         <section className="card">
           <div className="cardHead"><h2>계정 추가</h2></div>
           <form className="formStack padded" onSubmit={create}>
+            <p className="weekHint">새 계정은 팀원으로 생성됩니다.</p>
             <label>아이디<input name="loginId" className="input" autoCapitalize="none" spellCheck={false} minLength={3} maxLength={40} placeholder="영문·숫자, 점, 밑줄, 하이픈" required /></label>
             <label>이름<input name="name" className="input" maxLength={60} required /></label>
             {createError && <p className="formError" role="alert">{createError}</p>}
@@ -140,13 +161,13 @@ export default function AdminPage({ team, onToast }) {
           </form>
         </section>
       </div>
-      {selectedAccount && (
-        <Modal title="이 계정을 삭제할까요?" dismissible={!busy} onClose={() => setSelectedAccount(null)}>
-          <p className="weekHint">{selectedAccount.name} ({selectedAccount.loginId}) 계정을 삭제합니다.</p>
-          {deleteError && <p className="formError" role="alert">{deleteError}</p>}
+      {pendingAction && (
+        <Modal title={action.title} dismissible={!busy} onClose={() => setPendingAction(null)}>
+          <p className="weekHint">{pendingAction.account.name} ({pendingAction.account.loginId}) {action.description}</p>
+          {actionError && <p className="formError" role="alert">{actionError}</p>}
           <div className="actionRow dialogActions">
-            <button type="button" className="ghostBtn" disabled={busy} onClick={() => setSelectedAccount(null)}>취소</button>
-            <button type="button" className="dangerBtn" disabled={busy} onClick={remove}>{busy ? '삭제 중…' : '삭제하기'}</button>
+            <button type="button" className="ghostBtn" disabled={busy} onClick={() => setPendingAction(null)}>취소</button>
+            <button type="button" className={pendingAction.type === 'promote' ? 'primaryBtn' : 'dangerBtn'} disabled={busy} onClick={applyAccountAction}>{busy ? '처리 중…' : action.label}</button>
           </div>
         </Modal>
       )}

@@ -15,6 +15,7 @@ import {
 import accounts from '../api/accounts.js';
 import board from '../api/board.js';
 import retention from '../api/retention.js';
+import { provisionAccount } from '../server/accounts.js';
 import { getFirebaseAdmin } from '../server/firebase-admin.js';
 import { accountEmail } from '../shared/identity.js';
 import { weekRetentionCutoff } from '../shared/retention.js';
@@ -65,13 +66,16 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
   const retainedSeed = seedWeeks.filter(({ sunday }) => sunday >= weekRetentionCutoff());
   assert.match(seed(), new RegExp('Imported ' + retainedSeed.length + ' weeks; skipped 0'));
   assert.match(seed(), new RegExp('Imported 0 weeks; skipped ' + retainedSeed.length));
-  execFileSync(process.execPath, ['scripts/create-admin.js', adminId, '관리자'], {
-    env: { ...process.env, ZAMAR_ADMIN_PASSWORD: adminPassword }, encoding: 'utf8',
+  const models = getFirebaseAdmin();
+  // Only the emulator fixture bootstraps the first admin; account creation always makes members.
+  const { account: initialAdmin } = await provisionAccount(models, {
+    loginId: adminId, name: '팀장', password: adminPassword, role: 'admin',
   });
+  assert.equal(initialAdmin.role, 'user');
+  await models.db.doc('users/' + initialAdmin.uid).update({ role: 'admin' });
 
   const admin = sdk('admin');
   const member = sdk('member');
-  const models = getFirebaseAdmin();
   const changedPassword = 'member-changed-password';
   const loginId = 'choir.member';
   const future = Date.now() + 2 * 365 * 24 * 60 * 60 * 1000;
@@ -92,11 +96,13 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     const adminToken = await adminUser.getIdToken();
     assert.equal((await request(accounts, 'GET')).status, 401);
     assert.equal((await request(accounts, 'DELETE', { uid: adminUser.uid }, adminToken)).status, 403);
+    assert.equal((await request(accounts, 'PATCH', { uid: adminUser.uid, role: 'user' }, adminToken)).status, 409);
 
-    const res = await request(accounts, 'POST', { loginId, name: '팀원' }, adminToken);
+    const res = await request(accounts, 'POST', { loginId, name: '팀원', role: 'admin' }, adminToken);
     assert.equal(res.status, 200);
     const { account } = res.result;
     assert.equal(account.status, 'active');
+    assert.equal(account.role, 'user');
     assert.equal((await request(accounts, 'POST', { loginId, name: '중복' }, adminToken)).status, 409);
     const user = (await signInWithEmailAndPassword(member.auth, accountEmail(loginId), initialPassword)).user;
     const token = await user.getIdToken();
@@ -104,6 +110,46 @@ test('Firebase application accounts, Firestore rules, and repeatable seed', asyn
     assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, token)).status, 403);
     assert.equal((await getDocFromServer(docFor(member, 'users', account.uid))).data().role, 'user');
     await assert.rejects(updateDoc(docFor(member, 'users', account.uid), { role: 'admin' }), { code: 'permission-denied' });
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'admin' })).status, 401);
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'admin' }, token)).status, 403);
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'owner' }, adminToken)).status, 400);
+    assert.equal((await request(accounts, 'PATCH', { role: 'admin' }, adminToken)).status, 400);
+    assert.equal((await request(accounts, 'PATCH', { uid: 'missing-account', role: 'admin' }, adminToken)).status, 404);
+    const deletingProfile = models.db.doc('users/deleting-account');
+    await deletingProfile.set({ loginId: 'deleting.member', name: '삭제 중', role: 'user', status: 'deleting' });
+    assert.equal((await request(accounts, 'PATCH', { uid: deletingProfile.id, role: 'admin' }, adminToken)).status, 409);
+    await deletingProfile.delete();
+
+    const promoted = await request(accounts, 'PATCH', { uid: account.uid, role: 'admin' }, adminToken);
+    assert.equal(promoted.status, 200);
+    assert.equal(promoted.result.account.role, 'admin');
+    assert.equal((await getDocFromServer(docFor(member, 'users', account.uid))).data().role, 'admin');
+    // The existing session gains and loses both API and Firestore access without a new token.
+    assert.equal((await request(accounts, 'GET', null, token)).status, 200);
+    assert.equal((await request(accounts, 'DELETE', { uid: account.uid }, adminToken)).status, 403);
+    const teamRef = docFor(member, 'config', 'team');
+    const team = (await getDocFromServer(teamRef)).data();
+    await updateDoc(teamRef, { teamName: team.teamName });
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'user' }, adminToken)).status, 200);
+    assert.equal((await request(accounts, 'GET', null, token)).status, 403);
+    await assert.rejects(updateDoc(teamRef, { teamName: team.teamName }), { code: 'permission-denied' });
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'admin' }, adminToken)).status, 200);
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'user' }, token)).status, 200);
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'admin' }, adminToken)).status, 200);
+
+    // Concurrent self-demotions must still leave one active admin.
+    const demotions = await Promise.all([
+      request(accounts, 'PATCH', { uid: adminUser.uid, role: 'user' }, adminToken),
+      request(accounts, 'PATCH', { uid: account.uid, role: 'user' }, token),
+    ]);
+    assert.deepEqual(demotions.map(({ status }) => status).sort(), [200, 409]);
+    if (demotions[0].status === 200) {
+      assert.equal((await request(accounts, 'GET', null, adminToken)).status, 403);
+      assert.equal((await request(accounts, 'PATCH', { uid: adminUser.uid, role: 'admin' }, token)).status, 200);
+    }
+    assert.equal((await request(accounts, 'PATCH', { uid: account.uid, role: 'user' }, adminToken)).status, 200);
+    assert.equal((await getDocFromServer(docFor(member, 'users', account.uid))).data().role, 'user');
+    assert.equal((await request(accounts, 'GET', null, token)).status, 403);
     assert.equal((await getDocFromServer(docFor(member, 'weeks', weekDate))).data().positionCount, 11);
     assert.equal((await getDocsFromServer(collection(member.db, 'weeks', weekDate, 'positions'))).size, 11);
 
